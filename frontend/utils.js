@@ -34,7 +34,37 @@ const crossing = async (url, method = "GET", body = {}, headers = {}) => {
 const protectedCrossing = async(url, method = "GET", body = {}) =>{
     return await crossing(url, method, body, { "Authorization" : "Bearer " + await SecureStore.getItemAsync("aToken")});
 }
+const insertScriptHead = ({ name, src }) => {
+    if (!document.querySelector(`#${name}`)) {
+        const container = document.head || document.querySelector('head')
+        const scriptElement = document.createElement('script')
+        scriptElement.setAttribute('id', name)
+        scriptElement.async = true
+        scriptElement.src = src
+        container.appendChild(scriptElement)
+    }
+}
+
+
+const loadPaypal = () => {
+    return new Promise((resolve, reject) => {
+        const container = document.head || document.querySelector('head')
+        const scriptElement = document.createElement('script')
+        scriptElement.setAttribute('id', "paypal")
+        scriptElement.async = true
+        scriptElement.src = "https://www.paypal.com/sdk/js?client-id=YAcKyPNW4iA1QGrSQulkhLy_v8hqupekmBNkZ6h0cg9WwWmg91L3dmKsN_d7GEe4LaDq_Ug4Pz5k7TpyF&components=buttons,hosted-fields,funding-eligibility";
+        scriptElement.onload = () => {
+            document.getElementById("led").innerHTML = "paypalled";
+            resolve(window.paypal)
+
+        }
+        container.appendChild(scriptElement);
+    })
+
+
+}
 export {
     crossing,
-    protectedCrossing
+    protectedCrossing,
+    insertScriptHead
 }

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script
+        src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&client-id=<CLIENT_ID>&merchant-id=<MERCHANT_ID>&currency=USD&intent=capture"
+        data-partner-attribution-id="<BN_CODE>" data-client-token="<CLIENT_TOKEN>"></script>
+    <title>Index</title>
+</head>
+
+<body>
+    <h1>Index</h1>
+    <form name="f1" action="/paypal">
+        <button type="submit">Pay</button>
+    </form>
+</body>
+
+</html>

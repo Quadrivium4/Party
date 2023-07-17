@@ -2,11 +2,14 @@
 require("dotenv").config()
 const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
+
+
 const oAuth2Client = new google.auth.OAuth2(
     process.env.GMAIL_CLIENT_ID,
     process.env.GMAIL_CLIENT_SECRET,
     process.env.GMAIL_REDIRECT_URI
 );
+
 oAuth2Client.setCredentials({
     refresh_token: process.env.GMAIL_REFRESH_TOKEN
 });
@@ -42,4 +45,4 @@ const sendMail = async (body, to, subject) => {
     return result;
 }
 
-module.exports = sendMail
+module.exports = sendMail 

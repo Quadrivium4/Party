@@ -33,7 +33,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.miguelgiacobbe.frontend"
+      "package": "com.miguelgiacobbe.frontend",
+      "permissions" : []
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,6 +43,7 @@
       "eas": {
         "projectId": "2a22ab0d-64e6-4ff0-a331-a648ad8c1210"
       }
-    }
+    },
+    "plugins": []
   }
 }

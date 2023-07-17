@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script
+        src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&client-id=<%= clientId %>&currency=EUR&intent=capture"
+        data-client-token="<%= clientToken %>"></script>
+    <title>Paypal</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            margin: 0;
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        button {
+            all: unset;
+            text-align: center;
+            padding: 5px 20px;
+            background-color: rgb(143, 65, 158);
+            color: white;
+            text-transform: uppercase;
+        }
+        #card-form {
+            background-color: rgb(247, 247, 247);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+        }
+        #card-form >div {
+            width: 100%;
+            height: 100%;
+            display: contents;
+            flex-direction: column;
+            position: relative;
+            background-color: greenyellow;
+            font-size: 24;
+        }
+        #card-form >div >div{
+            display: flex;
+        }
+         #card-form >div > label {
+            width: 100%;
+         }
+         #paypal-button{
+         }
+        .card_field {
+            height: 40px;
+            padding: 0px 10px;
+            font-size: 24;
+        }
+    </style>
+</head>
+
+<body id="body">
+    <h2><%= party.name %></h2>
+    <form id="card-form">
+        
+        <div>
+            <div id="card-number" class="card_field"></div>
+            <div>
+                <div id="expiration-date" class="card_field"></div>
+                <div id="cvv" class="card_field"></div>
+            </div>
+            
+        </div>
+        <button type="submit">submit</button>
+       
+    </form>
+    <div id="paypal-button"></div>
+</body>
+
+<script defer>
+    var isScrolled = false;
+    console.log("hello")
+    document.addEventListener("scroll", (event) => {
+        const e = {
+            x: window.scrollX, 
+            y: window.scrollY
+        }
+        console.log(e)
+        //window.ReactNativeWebView.postMessage(JSON.stringify(e));
+        if(!isScrolled) {
+            //window.scroll(100,100)
+            isScrolled= true;
+        }
+        
+        //window.scrollBy(100,100)
+    })
+    
+// If this returns false or the card fields aren't visible, see Step #1.
+if (paypal.HostedFields.isEligible()) {
+let orderId;
+const form = document.getElementById("card-form");
+const inputs = document.getElementsByClassName("card_field");
+const body = document.getElementById("body");
+
+paypal.Buttons({
+    fundingSource: paypal.FUNDING.PAYPAL,
+    style: {
+        //layout: "horizontal",
+    },
+    createOrder: () => {
+        return fetch("/buy/1")
+            .then((res) => res.json())
+            .then((orderData) => {
+                orderId = orderData.id; // needed later to complete capture
+                return orderData.id
+            })
+        }
+}).render("#paypal-button")
+/*document.querySelector("#paypal-button").onclick = ()=>{
+    console.log("hello")
+    fetch("/buy/1")
+        .then((res) => res.json())
+        .then((orderData) => {
+            console.log(orderData)
+            orderId = orderData.id; // needed later to complete capture
+            window.ReactNativeWebView.postMessage(JSON.stringify(orderData));
+            return orderData.id
+        })
+}*/
+// Renders card fields
+paypal.HostedFields.render({
+    // Call your server to set up the transaction
+    createOrder: () => {
+        return fetch("/buy/1")
+    .then((res) => res.json())
+    .then((orderData) => {
+        orderId = orderData.id; // needed later to complete capture
+        return orderData.id
+    })
+    },
+    styles: {
+    "input": {
+        'font-size': "18px",
+        padding: "5px"
+    }, 
+    '.valid': {
+    color: 'green'
+    },
+    '.invalid': {
+    color: 'red'
+    }
+    },
+    fields: {
+        number: {
+            selector: "#card-number",
+            placeholder: "Card Number",
+            maxCardLength: 16
+        },
+        expirationDate: {
+            selector: "#expiration-date",
+            placeholder: "MM/YY"
+        },
+        cvv: {
+            selector: "#cvv",
+            placeholder: "CVV"
+        }
+        
+    }
+}).then(cardFields => {
+    document.querySelector("#card-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        cardFields.submit({})
+        .then(() => {
+            return fetch(`/capture/${orderId}`)})
+        .then((res) => res.json())
+        .then((orderData) => {
+            // Two cases to handle:
+            // (1) Non-recoverable errors -> Show a failure message
+            // (2) Successful transaction -> Show confirmation or thank you
+            // This example reads a v2/checkout/orders capture response, propagated from the server
+            // You could use a different API or structure for your 'orderData'
+            var errorDetail = Array.isArray(orderData.details) && orderData.details[0];
+            if (errorDetail) {
+                var msg = "Sorry, your transaction could not be processed.";
+                if (errorDetail.description)
+                    msg += "\n\n" + errorDetail.description;
+                if (orderData.debug_id) msg += " (" + orderData.debug_id + ")";
+                return alert(msg); // Show a failure message
+            }
+            // Show a success message or redirect
+            alert("Transaction completed!");
+        });
+    })
+}).then(()=>{
+    if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage('loaded');
+
+})
+.catch((err) => {
+    //;if(err) alert("Payment could not be captured! " + JSON.stringify(err));
+});
+}
+function resetScroll() {
+    body.scrollTo(0,0);
+
+}</script>
+</html>

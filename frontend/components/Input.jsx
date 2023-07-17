@@ -67,7 +67,7 @@ const Textarea = (props) =>{
 }
 const Maps = ({onChangeText, ...props}) =>{
     const theme = useTheme();
-    const [places, setPlaces] = useState([{name: "cocco"},{name: "cocco"},{name: "cocco"}])
+    const [places, setPlaces] = useState([])
     const [text, setText] = useState( props.value || props.defaultValue || "");
     const autocomplete = async (t) =>{
         let result = await crossing(`https://api.geoapify.com/v1/geocode/autocomplete?text=${t}&apiKey=3d65b7c6286c4cf5a7c0083a295de089`)
@@ -95,12 +95,11 @@ const Maps = ({onChangeText, ...props}) =>{
         
     }
     return (
-        <>
+        <View>
         
         <DefaultInput {...props} onChangeText={autocomplete} value={text}></DefaultInput>
             <ScrollView keyboardShouldPersistTaps="handled"
-             
-            style={{backgroundColor: theme.background, padding: places.length > 0? 10: 0, borderTopColor: "black", borderTopWidth: places.length > 0? 1: 0}}>
+            style={{backgroundColor: theme.primary, padding: places.length > 0? 10: 0, borderTopColor: "black", borderTopWidth: places.length > 0? 1: 0}}>
                 {
                     
                     places?
@@ -113,7 +112,7 @@ const Maps = ({onChangeText, ...props}) =>{
                     }): null
                 }
                 </ScrollView>
-        </>
+        </View>
         
             
     )
