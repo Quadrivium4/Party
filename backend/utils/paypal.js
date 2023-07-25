@@ -6,9 +6,64 @@ const urlModule = require("url");
 const baseURL = process.env.NODE_ENV === "production" ?
     "https://api-m.paypal.com" :
     "https://api-m.sandbox.paypal.com";
-const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
+const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, API_URL } = process.env;
 
-async function createOrder() {
+
+async function createPartner(id) {
+    const accessToken = await generateAccessToken();
+    const url = `${baseURL}/v2/customer/partner-referrals`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+            tracking_id: id,
+            operations: [
+                {
+                    operation: "API_INTEGRATION",
+                    api_integration_preference: {
+                        rest_api_integration: {
+                            integration_method: "PAYPAL",
+                            integration_type: "THIRD_PARTY",
+                            third_party_details: {
+                                features: [
+                                    "PAYMENT",
+                                    "REFUND",
+                                    "PARTNER_FEE"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            products: [
+                "PPCP"
+            ],
+            legal_consents: [
+                {
+                    type: "SHARE_DATA_CONSENT",
+                    granted: true
+                }
+            ],
+            partner_config_override: {
+                return_url: API_URL + "/complete-onboarding-paypal"
+            }
+        }),
+    });
+    const data = await response.json();
+    let link;
+    for (let i in data.links) {
+        if (data.links[i].rel === "action_url") {
+            link = data.links[i].href;
+            break;
+        }
+    }
+    console.log({link})
+    return link;
+}
+async function createOrder(price, merchant_id, custom_id) {
         const accessToken = await generateAccessToken();
         const url = `${baseURL}/v2/checkout/orders`;
         const response = await fetch(url, {
@@ -23,14 +78,28 @@ async function createOrder() {
                     {
                         amount: {
                             currency_code: "eur",
-                            value: 100,
+                            value: price.toString(),
                             breakdown: {
                                 item_total:{
                                     currency_code: "eur",
-                                    value: 100
+                                    value: price.toString()
                                 }
                             }
-                        }
+                        },
+                        payee: {
+                            merchant_id
+                        },
+                        payment_instruction: {
+                            platform_fees : [
+                                {
+                                    amount: {
+                                        currency_code: "eur",
+                                        value: "1.00"
+                                    }
+                                }
+                            ]
+                        },
+                        custom_id
                     }
                 ],
             }),
@@ -145,5 +214,6 @@ module.exports = {
     retrieveOrder,
     createOrder,
     sendPayment,
+    createPartner,
     generateClientToken
 }

@@ -4,6 +4,9 @@ const { tryCatch } = require("./utils");
 const verifyToken = require("./middlewares/verifyToken");
 const { getParties, postParty, getParty } = require("./controllers/party");
 const { createOrder, capturePayment } = require("./utils/paypal");
+const { buy, completeOnboarding, getOnboardingLink, confirmPayment, sendEmailPaymentConfirmation, checkoutPage, checkoutPageTest } = require("./controllers/payment");
+const { getTickets } = require("./controllers/tickets");
+const { downloadFile } = require("./utils/files");
 
 const publicRouter = express.Router();
 const protectedRouter = express.Router();
@@ -18,22 +21,16 @@ publicRouter.post("/login", tryCatch(login))
 publicRouter.post("/register", tryCatch(register));
 publicRouter.post("/verify", tryCatch(verify))
 
+publicRouter.get("/file/:id", tryCatch(downloadFile))
+publicRouter.post("/buy", tryCatch(buy))
+publicRouter.get("/confirm-email/:id", tryCatch(sendEmailPaymentConfirmation))
+publicRouter.get("/capture/:id", tryCatch(confirmPayment))
+publicRouter.get("/complete-onboarding-paypal", tryCatch(completeOnboarding))
+protectedRouter.get("/paypal-onboarding-link", tryCatch(getOnboardingLink));
+protectedRouter.get("/checkout/:id", tryCatch(checkoutPage));
+publicRouter.get("/checkout", tryCatch(checkoutPageTest))
 
-publicRouter.get("/buy/:id", tryCatch(async(req, res)=>{
-    console.log("getted", req.params)
-    const {token, link, id} = await createOrder();
-    console.log({token, link, id})
-    res.send({token, link, id});
-}))
-publicRouter.get("/confirm-email/:id",)
-publicRouter.get("/capture/:id", tryCatch(async (req, res) => {
-    console.log("captured", req.params)
 
-    const {id } = req.params;
-    let data = await capturePayment(id)
-    console.log(data)
-    res.send(data);
-}))
 protectedRouter.get("/logout", tryCatch(logout));
 protectedRouter.route("/party")
     .get(tryCatch(getParties))
@@ -44,6 +41,9 @@ protectedRouter.route("/party/:id")
 protectedRouter.route("/user")
     .get(tryCatch(getUser))
     .delete(tryCatch(deleteAccount))
+
+protectedRouter.route("/tickets")
+    .get(tryCatch(getTickets))
 module.exports = {
     publicRouter,
     protectedRouter

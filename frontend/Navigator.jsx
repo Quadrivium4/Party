@@ -7,7 +7,7 @@ import { useAuth } from "./context/AuthContext";
 
 import * as Linking from 'expo-linking';
 import Verify from "./auth/Verify";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import Text from "./components/Text";
 import { useTheme } from "./context/ThemeContext";
 const Home = () =>{
@@ -26,6 +26,14 @@ const config = {
             path: "home"
         },
         Verify: 'verify/:id/:token',
+        TabNavigator: {
+            path: "tab-navigator",
+            screens: {
+                Settings: "settings",
+                CreateParty: "create-party/:paypalBusinessId?",
+                Tickets: "tickets/:reload?"
+            }
+        }
     },
 };
 
@@ -35,9 +43,9 @@ const linking = {
 };
 
 const Navigator = () =>{
-    const {logged } = useAuth();
+    const {logged, loading } = useAuth();
     const theme = useTheme()
-    console.log({logged})
+    console.log({logged, loading})
     return (
         <NavigationContainer 
         linking={linking} 
@@ -46,7 +54,10 @@ const Navigator = () =>{
                 background: theme.background
                 }
             }}>
-            {logged? <AppNavigator /> : <AuthNavigator />}
+                {loading? <ActivityIndicator>
+
+                </ActivityIndicator>: logged? <AppNavigator /> : <AuthNavigator />}
+            
         </NavigationContainer>
     )
 }

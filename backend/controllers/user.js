@@ -6,10 +6,12 @@ const register = async(req, res) =>{
     const user = await createUnverifiedUser(name, email, password);
     const link = `${process.env.CLIENT_URL}/verify/${user.id}/${user.token}`;
     console.log({link})
-    await sendMail(`
-        <h1>Confirmation email: </h1>
-        <a href="${link}">verify</a>
-    `, user.email, "Confirm your email")
+    await sendMail({
+        to: user.email,
+        subject: "Confirm your email",
+        body:  `<h1>Confirmation email: </h1>
+                <a href="${link}">verify</a>`
+    })
     res.send(user);
 }
 const verify = async (req, res) => {

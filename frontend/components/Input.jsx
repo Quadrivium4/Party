@@ -7,6 +7,7 @@ import { crossing } from '../utils';
 import Select from './Select';
 import TextOut  from "./Text"
 import { useTheme } from '../context/ThemeContext';
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Button from './Button';
 const Input = (props) => <>{props.children}</>;
 
@@ -65,6 +66,18 @@ const Number = ({defaultValue, value, ...props}) =>{
 const Textarea = (props) =>{
     return <DefaultInput multiline={true} numberOfLines={10}  {...props} style={{height: Platform.OS === "ios"? 150 : null, textAlignVertical: 'top', ...props.style}}></DefaultInput>
 }
+const Date = ({ onChangeText, ...props }) => {
+    const theme = useTheme();
+    const [display,setDisplay] = useState(false);
+    return Platform.OS === "ios" || display?  <DateTimePicker {...props} accentColor={theme.primary_contrast} onChange={(event, date)=>{
+        console.log(event.nativeEvent.timestamp)
+        //if(event.type === "dismissed"){
+            setDisplay(false);
+        
+        console.log(date)
+        onChangeText({date, timestamp: event.nativeEvent.timestamp})
+    }}></DateTimePicker> : <Button onPress={()=>setDisplay(true)}>select date</Button>;
+};
 const Maps = ({onChangeText, ...props}) =>{
     const theme = useTheme();
     const [places, setPlaces] = useState([])
@@ -122,4 +135,5 @@ Input.Textarea = ({onChangeText})=> Textarea({onChangeText});
 Input.Text = DefaultInput;
 Input.Maps = Maps;
 Input.Number = Number;
+Input.Date = Date;
 export default Input

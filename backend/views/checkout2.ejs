@@ -82,10 +82,16 @@
             <button type="submit">submit</button>
         </form>
         <div id="paypal-button"></div>
+        <div id="console"></div>
+
+        </div>
     </body>
 
     <script defer>
-
+    console.log("helloooooooo")
+    document.getElementById("console").innerHTML = paypal.HostedFields.isEligible();
+    // If this returns false or the card fields aren't visible, see Step #1.
+    console.log(paypal.HostedFields.isEligible())
     if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(paypal.HostedFields.isEligible() );
     paypal.Buttons({
         fundingSource: paypal.FUNDING.PAYPAL,
@@ -172,8 +178,10 @@
                 // Call your server to set up the transaction
                 
                 createOrder: () => {
-                    //document.getElementById("console").innerHTML = "red"
-                    window.ReactNativeWebView.postMessage("create order! cocco");
+                    document.getElementById("console").innerHTML = "red"
+                    window.ReactNativeWebView.postMessage(
+                        "create order! cocco"
+                    );
                     return buyTicket().then((res) => {
                         orderId = res.customId;
                         return res.id;
@@ -212,13 +220,10 @@
                     document
                         .querySelector("#card-form")
                         .addEventListener("submit", (event) => {
-
                             event.preventDefault();
-                            //window.ReactNativeWebView.postMessage("submit");
                             cardFields
                                 .submit({})
                                 .then(() => {
-                                    window.ReactNativeWebView.postMessage("submit");
                                     return fetch(`/confirm-email/${orderId}`);
                                 })
                                 .then((res) => res.json())

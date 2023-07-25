@@ -1,8 +1,8 @@
 import { baseUrl, protectedUrl } from "../constants"
-import { protectedCrossing } from "../utils"
+import { protectedCrossing, crossing } from "../utils"
 
-const buyTicket = async (id) => {
-    return await protectedCrossing(protectedUrl + "/buy/" + id);
+const getTickets = async () => {
+    return await protectedCrossing(protectedUrl + "/tickets");
 }
 const getParties = async (longitude, latitude, radius) => {
     console.log("fetching")
@@ -13,5 +13,5 @@ const postParty = async (body = { name: "new party", descrption: "Wow party", lo
 }
 
 export {
-    buyTicket
+    getTickets
 }

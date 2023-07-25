@@ -5,8 +5,12 @@ import { useAuth, useAuthDispatch } from '../context/AuthContext';
 import Text from './Text';
 import { useTheme } from '../context/ThemeContext';
 
-const Button = ({onPress = ()=>{}, children}) =>{
-    const [opacity , setOpacity]= useState(1);
+const Button = ({onPress = ()=>{}, children, disabled = false}) =>{
+    console.log(disabled)
+    const [opacity , setOpacity]= useState(disabled? 0.5: 1);
+    useEffect(()=>{
+        setOpacity(disabled? 0.5: 1)
+    },[disabled])
     const theme = useTheme()
     const initialStyles = {
         backgroundColor: theme.primary,
@@ -23,7 +27,7 @@ const Button = ({onPress = ()=>{}, children}) =>{
         onPress();
     }
     return (
-        <Pressable onPress={handlePress} style={{...initialStyles, opacity}}>
+        <Pressable onPress={handlePress} style={{...initialStyles, opacity}} disabled={disabled} >
             <Text.P style={{color: initialStyles.color,  textTransform: 'uppercase', fontWeight: "400"}}>{children}</Text.P>
         </Pressable>
     )

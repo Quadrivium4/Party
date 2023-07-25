@@ -13,7 +13,7 @@ const oAuth2Client = new google.auth.OAuth2(
 oAuth2Client.setCredentials({
     refresh_token: process.env.GMAIL_REFRESH_TOKEN
 });
-const sendMail = async (body, to, subject) => {
+const sendMail = async ({to, subject, body, attachments = []}) => {
     console.log(process.env.GMAIL_CLIENT_ID,
         process.env.GMAIL_CLIENT_SECRET,
         process.env.GMAIL_REDIRECT_URI)
@@ -38,7 +38,8 @@ const sendMail = async (body, to, subject) => {
         from: process.env.MY_EMAIL,
         to: to,
         subject: subject,
-        html: body
+        html: body,
+        attachments
     };
 
     const result = await transporter.sendMail(mailOptions);

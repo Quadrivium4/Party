@@ -16,11 +16,12 @@ const UserSchema = new mongoose.Schema({
         rquired: true
     },
     tokens: [],
+    tickets: [],
     stripeId: {
         type: String,
         trim: true,
     },
-    paypalId: {
+    paypalBusinessId: {
         type: String,
         trim: true
     },

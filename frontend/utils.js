@@ -11,17 +11,21 @@ const crossing = async (url, method = "GET", body = {}, headers = {}) => {
                 "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
                 ...headers
             }
-        }).then(res => res.json());
+        }).then(async res => {
+            if (!res.ok) throw await res.json();
+            return res.json()
+        });
     } else if (method === "POST" || method === "PUT") {
+        headers = {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+            ...headers
+        }
+        console.log(headers["Content-Type"])
         result = await fetch(url, {
             method: method,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
-                ...headers
-            },
-            body: JSON.stringify(body)
+            headers,
+            body: headers["Content-Type"] == "application/json"? JSON.stringify(body) : body
         }).then(async res => {
             if (!res.ok) throw await res.json();
             return res.json()
@@ -31,8 +35,8 @@ const crossing = async (url, method = "GET", body = {}, headers = {}) => {
     }
     return result
 }
-const protectedCrossing = async(url, method = "GET", body = {}) =>{
-    return await crossing(url, method, body, { "Authorization" : "Bearer " + await SecureStore.getItemAsync("aToken")});
+const protectedCrossing = async(url, method = "GET", body = {}, headers = {}) =>{
+    return await crossing(url, method, body, { "Authorization" : "Bearer " + await SecureStore.getItemAsync("aToken"), ...headers});
 }
 const insertScriptHead = ({ name, src }) => {
     if (!document.querySelector(`#${name}`)) {

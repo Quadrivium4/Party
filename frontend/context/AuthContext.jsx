@@ -7,12 +7,15 @@ const AuthContext = createContext(null);
 const AuthDispatchContext = createContext(null);
 const authState = {
     logged: false,
+    loading: true,
     token: null,
     user: null
 }
 const authReducer = (state, action) =>{
     console.log("dispatching...", action)
     switch (action.type) {
+         case "SET_LOADING":
+            return {...state, loading: action.value}
         case "SET_LOGGED":
             return {...state, logged: action.value}
         case "SET_TOKEN":
@@ -33,13 +36,18 @@ const AuthProvider = ({children}) =>{
                 const token= await SecureStore.getItemAsync("aToken");
                 if(!token) return console.log("not logged", token);
                 const user = await protectedCrossing(`${protectedUrl}/user`, "GET");
+                if(!user) return;
                 await dispatch({type: "SET_USER", value: user})
+                dispatch({ type: "SET_TOKEN", value: token })
                 dispatch({ type: "SET_LOGGED", value: true })
                 
                 console.log("is logged", token)
                 
             }
-            isLogged();
+            isLogged().then(()=> dispatch({ type: "SET_LOADING", value: false})).catch(err=>{
+                console.log("error catched", err)
+                dispatch({ type: "SET_LOADING", value: false });
+            })
         }
         
         

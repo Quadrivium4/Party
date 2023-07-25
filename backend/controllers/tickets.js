@@ -1,20 +1,19 @@
+const Party = require("../models/party");
 const sendMail = require("../utils/sendMail");
-const { createOrder, capturePayment } = require("./utils/paypal");
+const { createOrder, capturePayment } = require("../utils/paypal");
 
 
 
-const order = async(req, res) =>{
-    const {link, id, token} =  await createOrder();
-    res.send({link, id, token});
+const getTickets = async(req, res) =>{
+    console.log("requesting tickets..")
+    const user = req.user;
+    const tickets = await Party.find({_id: {$in: user.tickets}});
+    res.send(tickets);
 }
-const requestConfirmation = async(req, res) =>{
-    await sendMail()
-}
-const buy = async(req, res)
 
 
 
 
 module.exports = {
-    order
+    getTickets
 }
