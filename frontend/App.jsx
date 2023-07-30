@@ -4,7 +4,6 @@ import {getHeaderTitle} from "@react-navigation/elements";
 import { AuthProvider } from './context/AuthContext';
 import Navigator from './Navigator';
 import { ThemeProvider } from './context/ThemeContext';
-import Checkout from './app/Checkout';
 
 
 const Header = ({ navigation, route, options, back }) =>{

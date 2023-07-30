@@ -1,4 +1,4 @@
-import { StyleSheet,View, Pressable, TextInput, Keyboard, Platform, ScrollView} from 'react-native';
+import { StyleSheet,View, Pressable, TextInput, Keyboard, Platform, ScrollView, InputAccessoryView} from 'react-native';
 import {NavigationContainer, Link, useNavigation} from "@react-navigation/native";
 import {useState, useEffect} from "react";
 import { useAuth, useAuthDispatch } from '../context/AuthContext';
@@ -8,12 +8,14 @@ import Select from './Select';
 import TextOut  from "./Text"
 import { useTheme } from '../context/ThemeContext';
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Crypto from "expo-crypto";
 import Button from './Button';
 const Input = (props) => <>{props.children}</>;
 
 
 const useInput = () =>{
     const theme = useTheme();
+    console.log({theme})
     const initialStyles = {
         backgroundColor: theme.medium,
         alignItems: "center",
@@ -39,6 +41,8 @@ const useInput = () =>{
 }
 const DefaultInput = (props)=>{
         const [text, setText] = useState(props.value || props.defaultValue|| "");
+        const theme = useTheme();
+        const uniqueId = Crypto.randomUUID()
         useEffect(()=>{
             setText(props.value);
         }, [props.value])
@@ -50,12 +54,23 @@ const DefaultInput = (props)=>{
             onBlur: onFocusOut, 
             style: styles, 
             value: text, 
+            inputAccessoryViewID: uniqueId,
+            autoCorrect: false,
+            spellCheck: false,
+            keyboardAppearance: theme.isDark? "dark" : "light",
             onChangeText: (e)=>{
                 setText(e);
                 props.onChangeText(e)
             }
         } 
-        return <TextInput {...newProps}></TextInput>
+        return (
+            <>
+                <TextInput {...newProps}></TextInput>
+                <InputAccessoryView nativeID={uniqueId}>
+                    <Button onPress={Keyboard.dismiss}>done</Button>
+                </InputAccessoryView>
+            </>
+        );
 
 }
 

@@ -8,7 +8,7 @@
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
         <script
-            src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&merchant-id=<%= owner.paypalBusinessId %>&client-id=<%= clientId %>&intent=capture"
+            src="https://www.paypal.com/sdk/js?components=buttons,hosted-fields&merchant-id=<%= owner.paypalBusinessId %>&client-id=<%= clientId %>&intent=capture&currency=EUR"
 
             data-client-token="<%= clientToken %>"
         ></script>
@@ -91,7 +91,13 @@
         fundingSource: paypal.FUNDING.PAYPAL,
         createOrder: () => {
             return buyTicket().then((res) => {
+                 
                 orderId = res.customId;
+                if (window.ReactNativeWebView){
+                    window.ReactNativeWebView.postMessage(
+                        "res" + res.id
+                    );
+                }
                 return res.id;
             });
         },
@@ -116,6 +122,20 @@
                     if (orderData.msg) alert(orderData.msg);
                 });
         },
+        onCancel: ()=>{
+            if (window.ReactNativeWebView){
+                    window.ReactNativeWebView.postMessage(
+                        "try cancel order: " + orderId
+                    );
+                }
+            fetch(`/cancel-order/${orderId}`, {
+                method: "DELETE"
+            })
+                .then((res) => res.json())
+                .then((orderData) => {
+                    alert("order canceled");
+                })
+        }
     })
     .render("#paypal-button");
 

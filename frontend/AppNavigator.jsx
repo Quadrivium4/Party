@@ -15,6 +15,8 @@ import { useTheme } from './context/ThemeContext';
 import Party from './app/Party';
 import Text from './components/Text';
 import Tickets from './app/Tickets';
+import {A} from './components/A';
+import MyParties from './app/MyParties';
 
 
 const Tab = createBottomTabNavigator();
@@ -28,9 +30,9 @@ const TabScreens = {
         icon: "plus-circle-outline",
         component: CreateParty
     },
-    Settings: {
-        icon: "cog-outline",
-        component: Settings
+    MyParties: {
+        icon: "party-popper",
+        component: MyParties
     },
     Tickets: {
         icon: "ticket-outline",
@@ -39,39 +41,58 @@ const TabScreens = {
 }
 const TabNavigator = () =>{
     const theme = useTheme();
-    return (<Tab.Navigator sceneContainerStyle={{backgroundColor: theme.background}} screenOptions={({route})=>({
-            headerShown: true,
-            headerStyle: {
-                backgroundColor: theme.strong,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.medium,
-                shadowColor: 'transparent', // this covers iOS
-                elevation: 0
-            },
-            headerTitleStyle: {
-                color: theme.foreground
-            },
-            tabBarStyle: {
-                backgroundColor: theme.strong,
-                borderTopWidth: 1,
-                borderTopColor: theme.medium
-            },
-            tabBarActiveTintColor: theme.primary_contrast,
-            tabBarInactiveTintColor:theme.contrast,
-            tabBarIcon: ({focused, color, size}) =>{
-                //console.log({route})
-                let iconName = TabScreens[route.name].icon;
-                //console.log({iconName})
-                return <Icon name={iconName} size={size} color={color} />;
-            }
-            })}>
-            {
-                Object.entries(TabScreens).map(([key, value])=>{
-                    //console.log({key, value})
-                    return <Tab.Screen key={key} name={key} component={value.component} />
-                })
-                }
-            </Tab.Navigator>)
+    return (
+        <Tab.Navigator
+            sceneContainerStyle={{ backgroundColor: theme.background }}
+            screenOptions={({ route }) => ({
+                headerShown: true,
+                headerLeft: () => <Text.H1>Hello</Text.H1>,
+                headerRight: () => (
+                    <A to={"Settings"}>
+                        <Icon
+                            name="account-outline"
+                            size={25}
+                            color={theme.foreground}
+                        ></Icon>
+                    </A>
+                ),
+                headerStyle: {
+                    backgroundColor: theme.strong,
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.medium,
+                    shadowColor: "transparent", // this covers iOS
+                    elevation: 0,
+                },
+                headerTitleStyle: {
+                    color: theme.foreground,
+                },
+                tabBarStyle: {
+                    backgroundColor: theme.strong,
+                    borderTopWidth: 1,
+                    borderTopColor: theme.medium,
+                },
+                tabBarActiveTintColor: theme.primary_contrast,
+                tabBarInactiveTintColor: theme.contrast,
+                tabBarIcon: ({ focused, color, size }) => {
+                    //console.log({route})
+                    let iconName = TabScreens[route.name].icon;
+                    //console.log({iconName})
+                    return <Icon name={iconName} size={size} color={color} />;
+                },
+            })}
+        >
+            {Object.entries(TabScreens).map(([key, value]) => {
+                //console.log({key, value})
+                return (
+                    <Tab.Screen
+                        key={key}
+                        name={key}
+                        component={value.component}
+                    />
+                );
+            })}
+        </Tab.Navigator>
+    );
 }
 const Idiot = () =>{
     return (
@@ -102,6 +123,7 @@ const AppNavigator = () =>{
             })}>
             <AppStack.Screen component={TabNavigator} name="TabNavigator" />
             <AppStack.Screen component={Party} name="Party" />
+            <AppStack.Screen component={Settings} name='Settings' />
             <AppStack.Screen component={Idiot} name="Idiot" />
         </AppStack.Navigator>
         

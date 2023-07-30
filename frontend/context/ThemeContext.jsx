@@ -28,15 +28,25 @@ const theme = {
 }
 
 const ThemeProvider = ({children}) =>{
-    const [state, setState] = useState({...theme.dark, ...theme.same});
+    const [state, setState] = useState({...theme.dark, ...theme.same, isDark: true, isLight: false});
     const toggleTheme = ()=>{
         console.log({state })
         console.log({state:  {...theme.dark, ...theme.same}})
-        if(JSON.stringify(state)== JSON.stringify({...theme.dark, ...theme.same})) {
+        if(state.isDark) {
             console.log("hello")
-            return setState({...theme.light, ...theme.same})
+            return setState({
+                ...theme.light,
+                ...theme.same,
+                isDark: false,
+                isLight: true,
+            });
         }
-        setState({...theme.dark, ...theme.same})
+        setState({
+            ...theme.dark,
+            ...theme.same,
+            isDark: true,
+            isLight: false,
+        });
     }
     return (
         <ThemeContext.Provider value={{...state, toggleTheme}}>

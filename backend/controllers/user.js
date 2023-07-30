@@ -1,4 +1,5 @@
 const { createUser, findUser, logoutUser, createUnverifiedUser, verifyUser, deleteUser} = require("../functions/user");
+const User = require("../models/user");
 const sendMail = require("../utils/sendMail");
 
 const register = async(req, res) =>{
@@ -29,7 +30,10 @@ const login = async(req, res) =>{
     res.send({ user, aToken });
 }
 const getUser = async(req, res) =>{
-    res.send(req.user);
+    const {id} = req.params;
+    if(!id) return res.send(req.user);
+    const user = await User.findById(id);
+    return res.send(user)
 }
 const deleteAccount = async(req, res) =>{
     const deletedUser = await deleteUser(req.user.id);

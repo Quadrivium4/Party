@@ -2,7 +2,7 @@ require("dotenv").config();
 const Party = require("../models/party");
 const PaypalOrder = require("../models/paypalOrder");
 const User = require("../models/user");
-const { createOrder, createPartner, generateClientToken, capturePayment } = require("../utils/paypal");
+const { createOrder, createPartner, generateClientToken, capturePayment, extractPaypalLink, refund } = require("../utils/paypal");
 const sendMail = require("../utils/sendMail");
 const { API_URL, CLIENT_URL } = process.env;
 
@@ -28,7 +28,7 @@ const checkoutPageTest = async (req, res) => {
     const party = await Party.findById("6491ca173fecbcfe717455c2");
     const owner = await User.findById(party.owner);
     console.log(party)
-    res.render("checkout2", {
+    res.render("checkout", {
         clientId: process.env.PAYPAL_CLIENT_ID,
         clientToken,
         party: party,
@@ -58,8 +58,14 @@ const buy = async (req, res) => {
     const paypalPayment = await PaypalOrder.create({ sellerId: owner.id, amount: party.price, customerId: customer.id, partyId });
     const result = await createOrder(party.price, owner.paypalBusinessId, paypalPayment.id);
     await PaypalOrder.findByIdAndUpdate(paypalPayment.id, { orderId: result.id });
-    console.log(result)
+    console.log({result})
     res.send({ ...result, customId: paypalPayment.id });
+}
+const cancelOrder = async(req, res) =>{
+    console.log("canceling order...")
+    const {id} = req.params;
+    await PaypalOrder.findByIdAndDelete(id);
+    res.send({msg: "order canceled succesfully"});
 }
 const sendEmailPaymentConfirmation = async (req, res) => {
     const { id } = req.params;
@@ -75,20 +81,48 @@ const confirmPayment = async (req, res) => {
     const { id } = req.params;
     const paypalOrder = await PaypalOrder.findByIdAndDelete(id);
     let party = await Party.findById(paypalOrder.partyId);
+    const refundUrl = extractPaypalLink(data.purchase_units.payments.captures[0].links, "refund");
     if (party.people.length >= party.capacity) return res.redirect(CLIENT_URL + "/failure/1");
-    party = await Party.findByIdAndUpdate(party.id, { $push: { people: paypalOrder.customerId } })
-    let customer = await User.findByIdAndUpdate(paypalOrder.customerId, { $push: { tickets: paypalOrder.partyId } });
     let data = await capturePayment(paypalOrder.orderId);
+    console.log({paymentData: data})
+    party = await Party.findByIdAndUpdate(party.id, { 
+        $push: { 
+            people: paypalOrder.customerId, 
+            refunds: data.purchase_units.payments.captures[0].id
+            
+        } 
+    })
+    let customer = await User.findByIdAndUpdate(paypalOrder.customerId, { $push: { tickets: paypalOrder.partyId } });
+ 
 
     console.log(data)
+    
+    console.log({refundUrl})
     res.redirect(CLIENT_URL + "/tab-navigator/tickets/reload");
+}
+const refundAll = async(req, res) =>{
+    const {id} = req.params;
+    const {paypalBusinessId} = req.user;
+    const party = await Party.findById(id);
+    const promises = [];
+    for(let i = 0; i< party.refunds; i++){
+        const paymentId = party.refunds[i];
+        promises.push(refund(paypalBusinessId, paymentId));
+    }
+    const result = Promise.all(promises);
+    console.log(result);
+    // to do delete party completle
+    await Party.findByIdAndDelete(id)
+    
 }
 module.exports = {
     buy,
+    cancelOrder,
     confirmPayment,
     sendEmailPaymentConfirmation,
     getOnboardingLink,
     completeOnboarding,
     checkoutPage,
-    checkoutPageTest
+    checkoutPageTest,
+    refundAll
 }

@@ -105,19 +105,19 @@ async function createOrder(price, merchant_id, custom_id) {
             }),
         });
         const data = await response.json();
-        let link;
+        console.log({data})
+        let link = extractPaypalLink(data.links, "approve");
         let id = data.id;
-        for(let i in data.links){
-            if(data.links[i].rel === "approve"){
-                link = data.links[i].href;
-                break;
-            }
-        }
         //console.log({data, link, details: data.details})
         let {token} = urlModule.parse(link, true).query
         return { link, token, id};
 }
-
+function extractPaypalLink(links, rel){
+    for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        if(rel === link.rel) return link.href;
+    }
+}
 // use the orders api to capture payment for an order
 async function capturePayment(orderId) {
     const accessToken = await generateAccessToken();
@@ -209,11 +209,37 @@ const sendPayment = async(paypalId, amountInEur)=>{
     const data = await response.json();
     console.log({data})
 }
+const refund = async(sellerId, paymentId) =>{
+    const accessToken = await generateAccessToken();
+    const url = `${baseURL}/v2/payments/captures/${paymentId}/refund`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "PayPal-Auth-Assertion" : getAuthAssertionValue(sellerId)
+        },
+        body: JSON.stringify({}),
+    });
+    console.log(response)
+    const data = await response.json();
+    console.log(data)
+}
+function getAuthAssertionValue(sellerPayerId) {
+    const auth1 = Buffer.from(JSON.stringify({ alg: "none" })).toString("base64");
+    const auth2 = Buffer.from(JSON.stringify({ iss : PAYPAL_CLIENT_ID , payer_id: sellerPayerId})).toString("base64");
+    const authAssertionHeader = `${auth1}.${auth2}.`;
+    return authAssertionHeader;
+}
+refund("R33KB35RFSEPG", "8N35000562703080S")
 module.exports = {
     capturePayment,
     retrieveOrder,
     createOrder,
     sendPayment,
     createPartner,
-    generateClientToken
+    generateClientToken,
+    extractPaypalLink,
+    getAuthAssertionValue,
+    refund
 }

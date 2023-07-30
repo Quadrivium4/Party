@@ -18,7 +18,8 @@ const PartySchema = new mongoose.Schema({
     pdfList: String,
     capacity: Number,
     images: Array,
-    owner: String
+    owner: String,
+    refunds: []
 })
 const Party = mongoose.model("Party", PartySchema);
 module.exports = Party;

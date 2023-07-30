@@ -22,13 +22,6 @@ const {ObjectId} = require("mongodb")
 
 app.use(express.json());
 app.use(fileUpload());
-app.post("/upload", (req, res)=>{
-    console.log(req.files)
-    for (const [key, value] of Object.entries(party)) {
-        form.append(key, value);
-    }
-    res.send({msg: "wow!"})
-})
 app.set('view engine', 'ejs');
 
 app.use(publicRouter);

@@ -23,8 +23,9 @@ const Settings = () =>{
             <Text.H1>Hello Settings</Text.H1>
             <Comp.NestedComp></Comp.NestedComp>
             <Button onPress={logout}>Log out</Button>
+            <Button onPress={deleteAccount}>Delete Account</Button>
             <Button onPress={theme.toggleTheme}>Toggle theme</Button>
         </View>
-    )
+    );
 }
 export default Settings
