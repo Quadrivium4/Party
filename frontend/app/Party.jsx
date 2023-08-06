@@ -35,135 +35,11 @@ import { Linking } from "react-native";
 import { baseUrl } from "../constants";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "../context/ThemeContext";
+import { useMessage } from "../context/MessageContext";
+import Loader from "../components/Loader";
+import Carusel from "../components/Carusel";
 const baseUri = "http://172.20.10.2:5000/protected/checkout/";
 
-const Carusel = ({ images, i = 0, closeModal }) => {
-    console.log({ i });
-    const [index, setIndex] = useState(i);
-    const theme = useTheme();
-    const [touch, setTouch] = useState({x: 0, y: 0});
-    let t = {
-        x: 0,
-        y: 0
-    }
-    const carusel = useRef();
-    const scrollLeft = () =>{
-        if (!index > 0) return;
-        carusel.current.scrollToIndex({
-            index: index - 1,
-        });
-        setIndex(index - 1);
-    }
-    const scrollRight = () =>{
-        if (!index < images.length - 1) return;
-        carusel.current.scrollToIndex({
-            index: index + 1,
-        });
-        setIndex(index + 1);
-    }
-    return (
-        <TouchableWithoutFeedback onPress={()=>{
-
-            closeModal()
-            }}>
-            <View
-                style={{
-                    ...styles.centeredView,
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0, 0.5)",
-                }}
-            >
-                <TouchableWithoutFeedback>
-                    <View style={{ backgroundColor: "red", justifyContent: "center" }} 
-                    onTouchStart={(e)=>{
-                        console.log(t)
-                        t.x = e.nativeEvent.pageX;
-                        console.log("touch start", t.x)
-                        }
-                    }
-                    onTouchEnd={(e)=>{
-                        console.log(t);
-                        let x = e.nativeEvent.pageX;
-                        console.log("touch end", t.x - x);
-                        if(t.x - x > 20) {
-                            console.log("left")
-                            scrollRight()
-                        }
-                        if (t.x - x < -20) {
-                            console.log("right");
-                            scrollLeft()
-                        }
-                    }}>
-                        <FlatList
-                            ref={carusel}
-                            horizontal={true}
-                            keyExtractor={(item) => item}
-                            //onLayout={()=> carusel.current.scrollToIndex({index: i})}
-                            initialScrollIndex={i}
-                            getItemLayout={(data, index) => {
-                                return {
-                                    length: Dimensions.get("window").width,
-                                    offset:
-                                        Dimensions.get("window").width * index,
-                                    index,
-                                };
-                            }}
-                            data={images}
-                            style={{
-                                height: "auto",
-                                backgroundColor: "red",
-                                flexGrow: 0,
-                            }}
-                            renderItem={({ item, index }) => {
-                                return (
-                                    <Image
-                                        source={{
-                                            uri: baseUrl + "/file/" + item,
-                                        }}
-                                        style={{
-                                            width: Dimensions.get("window")
-                                                .width,
-                                            height: "auto",
-                                            aspectRatio: 3 / 3,
-                                        }}
-                                    ></Image>
-                                );
-                            }}
-                        ></FlatList>
-                        <Pressable
-                            onPress={scrollLeft}
-                            style={{
-                                position: "absolute",
-                                alignSelf: "flex-start",
-                            }}
-                        >
-                            <Icon
-                                name="arrow-left-drop-circle-outline"
-                                size={60}
-                                color={index > 0 ? "black" : "gray"}
-                            />
-                        </Pressable>
-                        <Pressable
-                            onPress={scrollRight}
-                            style={{
-                                position: "absolute",
-                                alignSelf: "flex-end",
-                            }}
-                        >
-                            <Icon
-                                name="arrow-right-drop-circle-outline"
-                                size={60}
-                                color={
-                                    index < images.length - 1 ? "black" : "gray"
-                                }
-                            />
-                        </Pressable>
-                    </View>
-                </TouchableWithoutFeedback>
-            </View>
-        </TouchableWithoutFeedback>
-    );
-};
 const Party = ({ route }) => {
     const { token } = useAuth();
     console.log({ token });
@@ -174,8 +50,12 @@ const Party = ({ route }) => {
     const [webViewLoading, setWebViewLoading] = useState(true);
     const [imageModal, setImageModal] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
+    const {message} = useMessage();
     const { id } = route.params;
     console.log({ party });
+    useEffect(()=>{
+        if(isModalVisible === false) setWebViewLoading(true);
+    },[isModalVisible])
     useEffect(() => {
         if (party) return;
         getParty(id).then((res) => {
@@ -193,7 +73,8 @@ const Party = ({ route }) => {
                         style={{
                             flex: 1,
                             flexDirection: "row",
-                            height: 40,
+                            paddingHorizontal: 10,
+                            paddingVertical: 5,
                             width: "100%",
                             backgroundColor: theme.medium,
                             alignItems: "center",
@@ -203,12 +84,9 @@ const Party = ({ route }) => {
                         <Text.P>{party.location}</Text.P>
                         <View
                             style={{
-                                flex: 1,
                                 flexDirection: "row",
                                 alignItems: "center",
                                 gap: 5,
-                                width: 30,
-                                flexBasis: 70,
                                 flexGrow: 0,
                             }}
                         >
@@ -293,8 +171,9 @@ const Party = ({ route }) => {
                                 >
                                     <Pressable
                                         onPress={() => {
-                                            console.log("hi");
+                                            
                                             setIsModalVisible(false);
+                                            message.warning("Order canceled!")
                                         }}
                                     >
                                         <Icon
@@ -316,22 +195,32 @@ const Party = ({ route }) => {
                                             borderRadius: 10,
                                         }}
                                         onMessage={(msg) => {
-                                            const message =
-                                                msg.nativeEvent.data;
-                                            console.log("message: ", message);
-                                            if (message === "loaded")
-                                                setWebViewLoading(false);
-                                            if (message[0] === "{") {
-                                                json = JSON.parse(message);
-                                                console.log(json);
-                                                if (json.error) {
+                                            console.log(msg)
+                                            const data = JSON.parse(msg.nativeEvent.data);
+                                            
+                                            console.log("data: ", data);
+
+                                            switch (data.type) {
+                                                case "loaded":
                                                     setWebViewLoading(false);
+                                                    break;
+                                                case "loading":
+                                                    setWebViewLoading(true);
+                                                    break;
+                                                case "success": 
                                                     setIsModalVisible(false);
-                                                    alert(json.error);
-                                                }
-                                                if (json.link)
-                                                    Linking.openURL(json.link);
-                                            } else console.log(message);
+                                                    message.success(data.message);
+                                                    break;
+                                                case "error":
+                                                    setIsModalVisible(false);
+                                                    message.error(data.message);
+                                                case "canceled": 
+                                                    message.warning(data.message);
+                                                    break
+                                                default:
+                                                    break;
+                                            }
+                                            //Linking.openURL(json.link);
                                         }}
                                         source={{
                                             uri,
@@ -341,18 +230,7 @@ const Party = ({ route }) => {
                                             },
                                         }}
                                     ></WebView>
-                                    {webViewLoading ? (
-                                        <ActivityIndicator
-                                            style={{
-                                                position: "absolute",
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                top: 0,
-                                            }}
-                                            size="large"
-                                        />
-                                    ) : null}
+                                    <Loader visible={webViewLoading} />
                                 </View>
                             </View>
                         </Modal>

@@ -6,11 +6,12 @@ import Text from "../components/Text";
 import Button from '../components/Button';
 import Input from '../components/Input';
 import ShiftingView from '../components/ShiftingView';
-import { getParties, postParty } from '../controllers/party';
+import { getNearParties, postParty } from '../controllers/party';
 import * as Location from "expo-location" 
 import A from '../components/A';
 import { useTheme } from '../context/ThemeContext';
 import WebView from 'react-native-webview';
+import { useMessage } from '../context/MessageContext';
 
 const getUserLocation = async()=>{
     const permission = await Location.requestForegroundPermissionsAsync();
@@ -28,9 +29,11 @@ const Home = ({route, navigation}) =>{
     const [parties, setParties] = useState();
     const [radius, setRadius] = useState(500);
     const [coords, setCoords] = useState();
+    const {message, content} = useMessage()
    // const navigation = useNavigation();
     const theme = useTheme();
     useEffect(()=>{
+        //message.error("hellfro")
         //console.log("home mounted")
         const fetchParties = async() =>{
             //console.log("Started to fetch")
@@ -41,7 +44,7 @@ const Home = ({route, navigation}) =>{
                 setCoords({x: longitude, y: latitude});
             }
             if(coords){
-                getParties(coords.x, coords.y, radius).then(res=>{
+                getNearParties(coords.x, coords.y, radius).then(res=>{
                     //console.log("Parties setted")
                     //console.log(res)
                     setParties(res);
@@ -96,6 +99,7 @@ const Home = ({route, navigation}) =>{
                     keyExtractor={(item) => item._id}
                 ></FlatList>
 
+                <Button onPress={()=>message.success("yeeeeee" + Math.random())}>press me</Button>
 
                 
             </View>

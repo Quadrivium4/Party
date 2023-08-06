@@ -8,7 +8,7 @@ const initialStyles = {
         alignItems: "center",
         justifyContent: "center",
     };
-const A = ({children, to}) =>{
+const A = ({children, to, style}) =>{
     const [opacity , setOpacity]= useState(1)
     const navigation = useNavigation();
     const handlePress = () =>{
@@ -19,8 +19,10 @@ const A = ({children, to}) =>{
         navigation.navigate(to);
     }
     return (
-        <Pressable onPress={handlePress} style={{...initialStyles, opacity}}>{children}</Pressable>
-    )
+        <Pressable onPress={handlePress} style={{ opacity, ...style }}>
+            <Text.P style={{color: "rgb(100, 150,255)"}}>{children}</Text.P>
+        </Pressable>
+    );
 }
 const AButton = ({ children, to }) => {
     const [opacity, setOpacity] = useState(1);

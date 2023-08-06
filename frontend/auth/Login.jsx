@@ -4,7 +4,7 @@ import { useAuth, useAuthDispatch } from '../context/AuthContext';
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import Button from '../components/Button';
-import A from '../components/A';
+import {AButton} from '../components/A';
 import Text from '../components/Text';
 const Login = () =>{
   const dispatch = useAuthDispatch();
@@ -21,7 +21,7 @@ const Login = () =>{
     <TextInput onChangeText={setPassword} placeholderTextColor={theme.medium} style={{...styles.input, color: theme.foreground}} placeholder='Password'></TextInput>
     <Button onPress={handleLogin}>Submit</Button>
     <Text.P style={{textAlign: "center"}}>- or -</Text.P>
-    <A to="SignUp">sign up</A>
+    <AButton to="SignUp">sign up</AButton>
   </View >)
 }
 const styles = StyleSheet.create({

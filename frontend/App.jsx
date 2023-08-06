@@ -4,6 +4,8 @@ import {getHeaderTitle} from "@react-navigation/elements";
 import { AuthProvider } from './context/AuthContext';
 import Navigator from './Navigator';
 import { ThemeProvider } from './context/ThemeContext';
+import { MessageProvider } from './context/MessageContext';
+import Message from './components/Message';
 
 
 const Header = ({ navigation, route, options, back }) =>{
@@ -38,13 +40,16 @@ const Sandbox = () =>{
 }
 export default function App() {
   return (
-    //<Checkout />
-    //<Sandbox />
-    <AuthProvider>
-      <ThemeProvider>
-        <Navigator />
-      </ThemeProvider>
-    </AuthProvider>
+      //<Checkout />
+      //<Sandbox />
+      <AuthProvider>
+          <ThemeProvider>
+              <MessageProvider>
+                  <Message />
+                  <Navigator />
+              </MessageProvider>
+          </ThemeProvider>
+      </AuthProvider>
   );
 }
 

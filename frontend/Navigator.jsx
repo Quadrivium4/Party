@@ -10,6 +10,7 @@ import Verify from "./auth/Verify";
 import { ActivityIndicator, View } from "react-native";
 import Text from "./components/Text";
 import { useTheme } from "./context/ThemeContext";
+
 const Home = () =>{
     return <View>
 

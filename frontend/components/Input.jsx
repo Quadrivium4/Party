@@ -15,7 +15,7 @@ const Input = (props) => <>{props.children}</>;
 
 const useInput = () =>{
     const theme = useTheme();
-    console.log({theme})
+    //console.log({theme})
     const initialStyles = {
         backgroundColor: theme.medium,
         alignItems: "center",

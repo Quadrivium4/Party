@@ -48,7 +48,12 @@ const insertScriptHead = ({ name, src }) => {
         container.appendChild(scriptElement)
     }
 }
-
+const getDateFormatted = (d) =>{
+    console.log("hello")
+    date = new Date(d);
+    const string = date.getDate() + "/" + (date.getMonth() + 1) + "/" + ((date.getFullYear() + "").substr(2,3))
+    return string
+}
 
 const loadPaypal = () => {
     return new Promise((resolve, reject) => {
@@ -70,5 +75,6 @@ const loadPaypal = () => {
 export {
     crossing,
     protectedCrossing,
-    insertScriptHead
+    insertScriptHead,
+    getDateFormatted
 }

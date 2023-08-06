@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useReducer } from "react";
 import { crossing, protectedCrossing } from "../utils";
 import { baseUrl, protectedUrl } from "../constants";
 import * as SecureStore from 'expo-secure-store';
+import { signInWithGoogle } from "../controllers/auth";
 
 const AuthContext = createContext(null);
 const AuthDispatchContext = createContext(null);
@@ -62,6 +63,16 @@ const AuthProvider = ({children}) =>{
         dispatch({ type: "SET_LOGGED", value: true })
         return {user, aToken}
     }
+    const loginWithGoogle = async(accessToken) =>{
+        const {user, aToken} = await signInWithGoogle(accessToken);
+        console.log({ user, aToken });
+        SecureStore.setItemAsync("aToken", aToken);
+        //SecureStore.setItemAsync("aToken", aToken);
+        dispatch({ type: "SET_TOKEN", value: aToken });
+        await dispatch({ type: "SET_USER", value: user });
+        dispatch({ type: "SET_LOGGED", value: true });
+        return { user, aToken };
+    }
     const register = async(name, email, password) =>{
         const {user} = await crossing(`${baseUrl}/register`, "POST", {name, email, password});
         console.log("successfully registered", user);
@@ -92,7 +103,7 @@ const AuthProvider = ({children}) =>{
         dispatch({ type: "SET_LOGGED", value: false });
     }
     return (
-        <AuthContext.Provider value={{...state, login, register, logout, verify, deleteAccount}}>
+        <AuthContext.Provider value={{...state, login, register, logout, verify, deleteAccount, loginWithGoogle}}>
             <AuthDispatchContext.Provider value={dispatch}>
                 {children}
             </AuthDispatchContext.Provider>

@@ -3,7 +3,7 @@ import {NavigationContainer, Link, useNavigation} from "@react-navigation/native
 import {useState, useEffect} from "react";
 import { useAuth, useAuthDispatch } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-const Text = ({children}) => {
+const Text = ({children, style}) => {
         return <>{children}</>;
 }
 

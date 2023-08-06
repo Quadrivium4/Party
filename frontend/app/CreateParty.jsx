@@ -34,23 +34,32 @@ const Party = ({ route }) => {
     const [onboardingLink, setOnbardingLink] = useState();
     console.log(route);
     const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const pickImage = async () => {
+        setLoading(true);
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true,
             aspect: [4, 3],
             quality: 1,
         });
-
+        
         console.log(result);
 
         if (!result.canceled) {
-            console.log(result)
-            setImages([...images, result.assets[0]]);
+            //console.log(result)
+            console.log("setting...")
+            
+            setImages([...images, ...result.assets]);
+            
         }
     };
+    useEffect(()=>{
+        console.log("setted!");
+        setLoading(false)
+    },[images])
     useEffect(() => {
         if (route.params?.paypalBusinessId && !user.paypalBusinessId)
             dispatch({
@@ -139,13 +148,15 @@ const Party = ({ route }) => {
                             flexWrap: "wrap",
                         }}
                     >
-                        {images.length > 0
+                        {loading? <Text.P>loading...</Text.P> : images.length > 0 
                             ? images.map((image, i) => {
                                   console.log(i);
                                   return (
                                       <Image
                                           key={i}
                                           source={{ uri: image.uri }}
+                                          //onLoadStart={()=>(console.log("------START------"))}
+                                          //onLoadEnd={()=>console.log("---------END------")}
                                           style={{ width: 100, height: 100 }}
                                       ></Image>
                                   );

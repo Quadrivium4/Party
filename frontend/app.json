@@ -14,7 +14,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "scheme" : "party",
+    "scheme": "party",
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -26,7 +26,8 @@
             }
           }
         }
-      }
+      },
+      "bundleIdentifier": "com.miguelgiacobbe.frontend"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +35,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.miguelgiacobbe.frontend",
-      "permissions" : []
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/favicon.png"
