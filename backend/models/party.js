@@ -19,6 +19,9 @@ const PartySchema = new mongoose.Schema({
     capacity: Number,
     images: Array,
     owner: String,
+    type: String,
+    requests: [],
+    chat: String,
     refunds: []
 })
 const Party = mongoose.model("Party", PartySchema);

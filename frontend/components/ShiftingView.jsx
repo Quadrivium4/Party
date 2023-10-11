@@ -10,16 +10,23 @@ const ShiftingView= ({children}) =>{
     
     
     return (
-        <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-            <TouchableWithoutFeedback onPress={()=>{ console.log("hello")}}>
-                <ScrollView style={{ padding: 10}} keyboardShouldPersistTaps="always">
+        <KeyboardAwareScrollView
+            keyboardShouldPersistTaps="handled"
+        >
+            <TouchableWithoutFeedback
+                onPress={() => {
+                   
+                }}
+            >
+                <ScrollView
+                    style={{ padding: 10 }}
+                    keyboardShouldPersistTaps="always"
+                >
                     {children}
                 </ScrollView>
             </TouchableWithoutFeedback>
         </KeyboardAwareScrollView>
-            
-        
-    )
+    );
 }
 
 

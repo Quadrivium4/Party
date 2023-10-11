@@ -1,0 +1,85 @@
+{
+	"ref": {
+		"_children": [
+			[ReactNativeFiberHostComponent
+			]
+		],
+		"_internalFiberInstanceHandleDEV": {
+			"_debugHookTypes": null,
+			"_debugNeedsRemount": false,
+			"_debugOwner": [FiberNode
+			],
+			"_debugSource": undefined,
+			"actualDuration": 3.3101680278778076,
+			"actualStartTime": 397379122.293541,
+			"alternate": null,
+			"child": [FiberNode
+			],
+			"childLanes": 0,
+			"deletions": null,
+			"dependencies": null,
+			"elementType": "RCTScrollView",
+			"flags": 512,
+			"index": 0,
+			"key": null,
+			"lanes": 0,
+			"memoizedProps": [Object
+			],
+			"memoizedState": null,
+			"mode": 2,
+			"pendingProps": [Object
+			],
+			"ref": [Function forwardRef
+			],
+			"return": [FiberNode
+			],
+			"selfBaseDuration": 0.03279203176498413,
+			"sibling": null,
+			"stateNode": [Circular
+			],
+			"subtreeFlags": 517,
+			"tag": 5,
+			"treeBaseDuration": 1.3870429992675781,
+			"type": "RCTScrollView",
+			"updateQueue": null
+		},
+		"_nativeTag": 463,
+		"flashScrollIndicators": [Function anonymous
+		],
+		"getInnerViewNode": [Function anonymous
+		],
+		"getInnerViewRef": [Function anonymous
+		],
+		"getNativeScrollRef": [Function anonymous
+		],
+		"getScrollResponder": [Function anonymous
+		],
+		"getScrollableNode": [Function anonymous
+		],
+		"scrollResponderScrollNativeHandleToKeyboard": [Function anonymous
+		],
+		"scrollResponderZoomTo": [Function anonymous
+		],
+		"scrollTo": [Function anonymous
+		],
+		"scrollToEnd": [Function anonymous
+		],
+		"viewConfig": {
+			"Commands": [Object
+			],
+			"Constants": [Object
+			],
+			"Manager": "ScrollViewManager",
+			"NativeProps": [Object
+			],
+			"baseModuleName": "RCTView",
+			"bubblingEventTypes": [Object
+			],
+			"directEventTypes": [Object
+			],
+			"uiViewClassName": "RCTScrollView",
+			"validAttributes": [Object
+			]
+		}
+	}
+}

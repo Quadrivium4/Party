@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Pressable, Button } from 'react-native';
+import { StyleSheet, View, Pressable, Button, Image } from 'react-native';
 import {NavigationContainer, Link, useNavigation, getFocusedRouteNameFromRoute} from "@react-navigation/native";
 import {useState, useEffect} from "react";
 import {getHeaderTitle} from "@react-navigation/elements";
@@ -17,6 +17,8 @@ import Text from './components/Text';
 import Tickets from './app/Tickets';
 import {A} from './components/A';
 import MyParties from './app/MyParties';
+import Header from './components/Header';
+import ChatRoom from './app/ChatRoom';
 
 
 const Tab = createBottomTabNavigator();
@@ -24,55 +26,38 @@ const AppStack = createNativeStackNavigator();
 const TabScreens = {
     Home: {
         icon: "home-outline",
-        component: Home
+        component: Home,
+        title: "Search a Party",
     },
-    CreateParty: {
-        icon: "plus-circle-outline",
-        component: CreateParty
-    },
+
     MyParties: {
         icon: "party-popper",
-        component: MyParties
+        component: MyParties,
+        title: "My Parties"
     },
     Tickets: {
         icon: "ticket-outline",
-        component: Tickets
-    }
-}
+        component: Tickets,
+        title: "My Tickets"
+    },
+};
 const TabNavigator = () =>{
     const theme = useTheme();
     return (
         <Tab.Navigator
-            sceneContainerStyle={{ backgroundColor: theme.background }}
+            sceneContainerStyle={{ backgroundColor: theme.strong }}
             screenOptions={({ route }) => ({
                 headerShown: true,
-                headerLeft: () => <Text.H1>Hello</Text.H1>,
-                headerRight: () => (
-                    <A to={"Settings"}>
-                        <Icon
-                            name="account-outline"
-                            size={25}
-                            color={theme.foreground}
-                        ></Icon>
-                    </A>
-                ),
-                headerStyle: {
-                    backgroundColor: theme.strong,
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.medium,
-                    shadowColor: "transparent", // this covers iOS
-                    elevation: 0,
-                },
-                headerTitleStyle: {
-                    color: theme.foreground,
-                },
+
+                header: (props)=><Header {...props} />,
                 tabBarStyle: {
-                    backgroundColor: theme.strong,
+                    backgroundColor: theme.background,
                     borderTopWidth: 1,
-                    borderTopColor: theme.medium,
+                    borderTopColor: theme.primary,
                 },
                 tabBarActiveTintColor: theme.primary_contrast,
                 tabBarInactiveTintColor: theme.contrast,
+                tabBarLabel: route.name,
                 tabBarIcon: ({ focused, color, size }) => {
                     //console.log({route})
                     let iconName = TabScreens[route.name].icon;
@@ -88,6 +73,7 @@ const TabNavigator = () =>{
                         key={key}
                         name={key}
                         component={value.component}
+                        options={{title: value.title}}
                     />
                 );
             })}
@@ -103,31 +89,24 @@ const AppNavigator = () =>{
     const theme = useTheme();
     //console.log()
     return (
-        <AppStack.Navigator 
-        
-         screenOptions={({route})=>({
-            headerShown: route.name == "TabNavigator"? false: true,
-             headerStyle: {
-                backgroundColor: theme.strong,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.medium,
-                shadowColor: 'transparent', // this covers iOS
-                elevation: 0
-            },
-            headerTitleStyle: {
-                color: theme.foreground
-            },
-            headerTintColor: theme.foreground,
-            contentStyle: theme.background,
-            
-            })}>
+        <AppStack.Navigator
+            screenOptions={({ route }) => ({
+                headerShown: route.name == "TabNavigator" ? false : true,
+                header: (props) => <Header {...props} />,
+                contentStyle: {
+                    backgroundColor: theme.strong,
+
+                },
+            })}
+        >
             <AppStack.Screen component={TabNavigator} name="TabNavigator" />
             <AppStack.Screen component={Party} name="Party" />
-            <AppStack.Screen component={Settings} name='Settings' />
+            <AppStack.Screen component={ChatRoom} name='ChatRoom' />
+            <AppStack.Screen component={Settings} name="Settings" />
             <AppStack.Screen component={Idiot} name="Idiot" />
+            <AppStack.Screen component={CreateParty} name='CreateParty' />
         </AppStack.Navigator>
-        
-    )
+    );
 }
 
 export default AppNavigator

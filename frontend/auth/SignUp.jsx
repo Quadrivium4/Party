@@ -8,6 +8,7 @@ import{ A, AButton} from '../components/A';
 import Text from '../components/Text';
 import * as Google from "expo-auth-session/providers/google"
 import { signInWithGoogle } from '../controllers/auth';
+import Input from '../components/Input';
 
 const SignUp = () =>{
     const dispatch = useAuthDispatch();
@@ -22,24 +23,10 @@ const SignUp = () =>{
 
     return (
         <View style={{ flex: 1 }}>
-            <TextInput
-                onChangeText={setName}
-                placeholder="Name"
-                placeholderTextColor={theme.medium}
-                style={{ ...styles.input, color: theme.foreground }}
-            ></TextInput>
-            <TextInput
-                onChangeText={setEmail}
-                placeholder="Email"
-                placeholderTextColor={theme.medium}
-                style={{ ...styles.input, color: theme.foreground }}
-            ></TextInput>
-            <TextInput
-                onChangeText={setPassword}
-                placeholder="Password"
-                placeholderTextColor={theme.medium}
-                style={{ ...styles.input, color: theme.foreground }}
-            ></TextInput>
+            <Input.Text onChangeText={setName} placeholder="Name"></Input.Text>
+            <Input.Text onChangeText={setEmail} placeholder="Email"></Input.Text>
+            <Input.Text onChangeText={setPassword} placeholder="Password"></Input.Text>
+
             <Button onPress={handleRegister}>Submit</Button>
             <Text.P
                 style={{
@@ -51,9 +38,9 @@ const SignUp = () =>{
             <Button.Google>Sign Up with Google</Button.Google>
             <View
                 style={{
-                    flex: 10,
+                    marginTop: 8,
                     flexDirection: "row",
-                    flexGrow: 1,
+                    justifyContent: "center"
                 }}
             >
                 <Text.P

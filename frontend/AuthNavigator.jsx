@@ -4,26 +4,22 @@ import Login from './auth/Login';
 import SignUp from './auth/SignUp';
 import Verify from "./auth/Verify";
 import { useTheme } from "./context/ThemeContext";
+import Header from "./components/Header";
 
 const AuthStack = createNativeStackNavigator();
 const AuthNavigator = () =>{
     const theme = useTheme()
-    console.log(theme)
+    //console.log(theme)
     return (
         <AuthStack.Navigator
+            
             screenOptions={({ route }) => ({
-                headerStyle: {
-                    backgroundColor: theme.strong,
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.medium,
-                    shadowColor: "transparent", // this covers iOS
-                    elevation: 0,
-                },
-                headerTitleStyle: {
-                    color: theme.foreground,
-                },
-                headerTintColor: theme.foreground,
-                contentStyle: theme.background,
+                header: (props) => <Header {...props}/>,
+                contentStyle: {
+                    backgroundColor: theme.strong
+                }
+                
+                
             })}
         >
             <AuthStack.Screen name="SignUp" component={SignUp} />

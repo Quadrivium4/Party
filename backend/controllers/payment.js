@@ -1,4 +1,6 @@
 require("dotenv").config();
+const { deletePartyImages } = require("../functions/party");
+const ChatRoom = require("../models/chatRoom");
 const Party = require("../models/party");
 const PaypalOrder = require("../models/paypalOrder");
 const User = require("../models/user");
@@ -65,37 +67,55 @@ const cancelOrder = async(req, res) =>{
     console.log("canceling order...")
     const {id} = req.params;
     await PaypalOrder.findByIdAndDelete(id);
-    res.send({msg: "order canceled succesfully"});
+    res.send({canceled: true, msg: "order canceled succesfully"});
 }
 const sendEmailPaymentConfirmation = async (req, res) => {
     const { id } = req.params;
     const paypalOrder = await PaypalOrder.findById(id);
     console.log({paypalOrder})
     const customer = await User.findById(paypalOrder.customerId);
-    await sendMail({to: customer.email, subject: "confirm payment", body: `<h1>Confirm your payment!!:</h1> <a href="${API_URL}/capture/${paypalOrder.id}">confirm</a>`});
-    res.send({ msg: "We sent you an email to confirm the payment!" });
+    const party = await Party.findById(paypalOrder.partyId);
+    if(party.type === "public"){
+        await sendMail({ to: customer.email, subject: "confirm payment", body: `<h1>Confirm your payment!!:</h1> <a href="${API_URL}/capture/${paypalOrder.id}">confirm</a>` });
+    }else if(party.type === "exclusive"){
+       // maybe send mail to owner
+        await Party.findByIdAndUpdate(party.id, {$push: {requests: customer.id}});
+    }else if(party.type === "private"){
+        await Party.findByIdAndUpdate(party.id, { $push: { requests: customer.id } });
+    }else{
+        throw new AppError(1, 500, "Unknown party type")
+    }
+    
+    return res.send({ success: true, msg: "We sent you an email to confirm the payment!" });
 }
 const confirmPayment = async (req, res) => {
     console.log("captured", req.params)
 
     const { id } = req.params;
     const paypalOrder = await PaypalOrder.findByIdAndDelete(id);
+    if(!paypalOrder) throw new AppError(1, 400, "Order not found, maybe is already completed...")
     let party = await Party.findById(paypalOrder.partyId);
-    const refundUrl = extractPaypalLink(data.purchase_units.payments.captures[0].links, "refund");
+    
     if (party.people.length >= party.capacity) return res.redirect(CLIENT_URL + "/failure/1");
-    let data = await capturePayment(paypalOrder.orderId);
-    console.log({paymentData: data})
+    let paypalResponse = await capturePayment(paypalOrder.orderId);
+    let paymentData = paypalResponse.purchase_units[0].payments.captures[0];
+    console.log({paymentData})
+    const refundUrl = extractPaypalLink(paymentData.links, "refund");
+
     party = await Party.findByIdAndUpdate(party.id, { 
         $push: { 
             people: paypalOrder.customerId, 
-            refunds: data.purchase_units.payments.captures[0].id
+            refunds: paymentData.id
             
         } 
     })
+    let chatRoom = await ChatRoom.findByIdAndUpdate(party.chat, {
+        $push: {
+            people: paypalOrder.customerId
+        }
+    })
     let customer = await User.findByIdAndUpdate(paypalOrder.customerId, { $push: { tickets: paypalOrder.partyId } });
  
-
-    console.log(data)
     
     console.log({refundUrl})
     res.redirect(CLIENT_URL + "/tab-navigator/tickets/reload");
@@ -112,7 +132,8 @@ const refundAll = async(req, res) =>{
     const result = Promise.all(promises);
     console.log(result);
     // to do delete party completle
-    await Party.findByIdAndDelete(id)
+    const deletedParty = await Party.findByIdAndDelete(id);
+    deletePartyImages(deletedParty.images);
     
 }
 module.exports = {

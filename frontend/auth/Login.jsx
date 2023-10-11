@@ -4,8 +4,9 @@ import { useAuth, useAuthDispatch } from '../context/AuthContext';
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import Button from '../components/Button';
-import {AButton} from '../components/A';
+import {A} from '../components/A';
 import Text from '../components/Text';
+import Input from '../components/Input';
 const Login = () =>{
   const dispatch = useAuthDispatch();
   const [email, setEmail] = useState("");
@@ -16,13 +17,32 @@ const Login = () =>{
       const user = await login(email, password);
   }
   return (
-  <View>
-    <TextInput onChangeText={setEmail} placeholder='Email' placeholderTextColor={theme.medium} style={{...styles.input, color: theme.foreground}}></TextInput>
-    <TextInput onChangeText={setPassword} placeholderTextColor={theme.medium} style={{...styles.input, color: theme.foreground}} placeholder='Password'></TextInput>
-    <Button onPress={handleLogin}>Submit</Button>
-    <Text.P style={{textAlign: "center"}}>- or -</Text.P>
-    <AButton to="SignUp">sign up</AButton>
-  </View >)
+      <View>
+          <Input.Text onChangeText={setEmail} placeholder="Email"></Input.Text>
+          <Input.Text onChangeText={setPassword} placeholder="Password"></Input.Text>
+          <Button onPress={handleLogin}>Submit</Button>
+          <Text.P style={{ textAlign: "center" }}>- or -</Text.P>
+          <Button.Google>Log In with Google</Button.Google>
+          <View
+              style={{
+                  marginTop: 8,
+                  flexDirection: "row",
+                  justifyContent: "center",
+              }}
+          >
+              <Text.P
+                  style={{
+                      textAlign: "center",
+                  }}
+              >
+                  Don't have an account?
+              </Text.P>
+              <A to={"SignUp"} style={{ marginLeft: 5 }}>
+                  Sign up
+              </A>
+          </View>
+      </View>
+  );
 }
 const styles = StyleSheet.create({
   input: {

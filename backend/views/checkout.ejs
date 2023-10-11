@@ -85,56 +85,52 @@
     </body>
 
     <script defer>
-
-    if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(paypal.HostedFields.isEligible() );
+        function message(type, message = "") {
+            if(!window.ReactNativeWebView) return;
+            window.ReactNativeWebView.postMessage(
+                JSON.stringify({
+                    type, 
+                    message
+                }));
+        }
+        function processOrderData(orderData){
+            /*
+            let errorDetail =
+                Array.isArray(orderData.details) &&
+                orderData.details[0];
+            if (errorDetail) {
+                let msg =
+                    "Sorry, your transaction could not be processed.";
+                if (errorDetail.description)
+                    msg += "\n\n" + errorDetail.description;
+                if (orderData.debug_id)
+                    msg += " (" + orderData.debug_id + ")";
+                return message("error", msg) // Show a failure message
+            }
+            // Show a success message or redirect*/
+            if (orderData.error) message("error", orderData.msg)
+            // I don't know if this is a good idea...
+            //if (orderData.canceled) message("canceled", orderData.msg)
+            if (orderData.success) message("success", orderData.msg);
+}
     paypal.Buttons({
         fundingSource: paypal.FUNDING.PAYPAL,
         createOrder: () => {
             return buyTicket().then((res) => {
-                 
                 orderId = res.customId;
-                if (window.ReactNativeWebView){
-                    window.ReactNativeWebView.postMessage(
-                        "res" + res.id
-                    );
-                }
                 return res.id;
             });
         },
         onApprove: () => {
             fetch(`/confirm-email/${orderId}`)
                 .then((res) => res.json())
-                .then((orderData) => {
-                    console.log(orderData);
-                    var errorDetail =
-                        Array.isArray(orderData.details) &&
-                        orderData.details[0];
-                    if (errorDetail) {
-                        var msg =
-                            "Sorry, your transaction could not be processed.";
-                        if (errorDetail.description)
-                            msg += "\n\n" + errorDetail.description;
-                        if (orderData.debug_id)
-                            msg += " (" + orderData.debug_id + ")";
-                        return alert(msg); // Show a failure message
-                    }
-                    // Show a success message or redirect
-                    if (orderData.msg) alert(orderData.msg);
-                });
+                .then(processOrderData);
         },
         onCancel: ()=>{
-            if (window.ReactNativeWebView){
-                    window.ReactNativeWebView.postMessage(
-                        "try cancel order: " + orderId
-                    );
-                }
             fetch(`/cancel-order/${orderId}`, {
                 method: "DELETE"
-            })
-                .then((res) => res.json())
-                .then((orderData) => {
-                    alert("order canceled");
-                })
+            }).then((res) => res.json())
+            .then(processOrderData)
         }
     })
     .render("#paypal-button");
@@ -142,20 +138,11 @@
     async function buyTicket() {
         //let res0 = await fetch("/buy");]=
         const partyId = document.getElementById("party-id").innerText;
-        const customerId =
-            document.getElementById("customer-id").innerText;
-        if (window.ReactNativeWebView)
-            window.ReactNativeWebView.postMessage(
-                "create order  !" + partyId
-            );
-        //if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage("create order  !" + partyId);
-        // window.ReactNativeWebView.postMessage("create order  !" + partyId + customerId);
-        //console.log(partyId)
+        const customerId = document.getElementById("customer-id").innerText;
         const body = {
             partyId: partyId,
             customerId: customerId,
         };
-        //window.ReactNativeWebView.postMessage(body);
 
         let res = await fetch("/buy", {
             method: "POST",
@@ -164,16 +151,12 @@
             },
             body: JSON.stringify(body),
         });
-        console.log(res);
-        // window.ReactNativeWebView.postMessage("create order!" + res);
         res = await res.json();
-        //window.ReactNativeWebView.postMessage("create order!" +  res);
 
         return res;
     }
-    if (!paypal.HostedFields.isEligible() && window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage("loaded"); 
-        //document.getElementById("console").innerHTML = "<h1>Hosted fields not available</h1>" + paypal.HostedFields.render;
+    if (!paypal.HostedFields.isEligible() && window.ReactNativeWebView) { 
+        message("error", "cannot load paypal...")
     }
     if (paypal.HostedFields.isEligible()) {
 
@@ -181,19 +164,8 @@
             const form = document.getElementById("card-form");
             const inputs = document.getElementsByClassName("card_field");
             const body = document.getElementById("body");
-
-            //window.ReactNativeWebView.postMessage("create order res 0 !" );
-            //window.ReactNativeWebView.postMessage("create " + partyId + "create " + customerId );
-
-            
-
-            
             paypal.HostedFields.render({
-                // Call your server to set up the transaction
-                
                 createOrder: () => {
-                    //document.getElementById("console").innerHTML = "red"
-                    window.ReactNativeWebView.postMessage("create order! cocco");
                     return buyTicket().then((res) => {
                         orderId = res.customId;
                         return res.id;
@@ -234,46 +206,21 @@
                         .addEventListener("submit", (event) => {
 
                             event.preventDefault();
+                            message("loading")
                             //window.ReactNativeWebView.postMessage("submit");
                             cardFields
                                 .submit({})
                                 .then(() => {
-                                    window.ReactNativeWebView.postMessage("submit");
                                     return fetch(`/confirm-email/${orderId}`);
                                 })
                                 .then((res) => res.json())
-                                .then((orderData) => {
-                                    console.log(orderData);
-                                    // Two cases to handle:
-                                    // (1) Non-recoverable errors -> Show a failure message
-                                    // (2) Successful transaction -> Show confirmation or thank you
-                                    // This example reads a v2/checkout/orders capture response, propagated from the server
-                                    // You could use a different API or structure for your 'orderData'
-                                    var errorDetail =
-                                        Array.isArray(orderData.details) &&
-                                        orderData.details[0];
-                                    if (errorDetail) {
-                                        var msg =
-                                            "Sorry, your transaction could not be processed.";
-                                        if (errorDetail.description)
-                                            msg +=
-                                                "\n\n" +
-                                                errorDetail.description;
-                                        if (orderData.debug_id)
-                                            msg +=
-                                                " (" + orderData.debug_id + ")";
-                                        return alert(msg); // Show a failure message
-                                    }
-                                    // Show a success message or redirect
-                                    if (orderData.msg) alert(orderData.msg);
-                                });
+                                .then(processOrderData)
                         });
-                })
-                .then(() => {
-                    if (window.ReactNativeWebView)
-                        window.ReactNativeWebView.postMessage("loaded");
+                }).then(() => {
+                    message("loaded")
                 })
                 .catch((err) => {
+                    
                     //;if(err) alert("Payment could not be captured! " + JSON.stringify(err));
                 });
         }

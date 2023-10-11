@@ -27,7 +27,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import ShiftingView from "../components/ShiftingView";
 import { getParty, postParty } from "../controllers/party";
-import { insertScriptHead, protectedCrossing } from "../utils";
+import { getDateFormatted, insertScriptHead, protectedCrossing } from "../utils";
 import { buyTicket } from "../controllers/tickets";
 import WebView from "react-native-webview";
 import * as Constants from "expo-constants";
@@ -39,11 +39,30 @@ import { useMessage } from "../context/MessageContext";
 import Loader from "../components/Loader";
 import Carusel from "../components/Carusel";
 const baseUri = "http://172.20.10.2:5000/protected/checkout/";
-
+const MyImage = ({ image, width = undefined, height = undefined }) => {
+    const [loading, setLoading] = useState(true);
+    return (
+        <>
+            <Image
+                source={{
+                    uri: baseUrl + "/file/" + image.id,
+                }}
+                onLoad={() => setLoading(false)}
+                style={{
+                    width: width,
+                    height: height,
+                    aspectRatio: image.aspectRatio,
+                }}
+            ></Image>
+            {loading ? <Loader visible={loading}></Loader> : null}
+        </>
+    );
+};
 const Party = ({ route }) => {
     const { token } = useAuth();
-    console.log({ token });
+    //console.log({ token });
     const [party, setParty] = useState();
+    const [imageIds, setImageIds] = useState([]);
     const theme = useTheme();
     const [uri, setUri] = useState();
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -52,7 +71,7 @@ const Party = ({ route }) => {
     const [imageIndex, setImageIndex] = useState(0);
     const {message} = useMessage();
     const { id } = route.params;
-    console.log({ party });
+    //console.log({ party });
     useEffect(()=>{
         if(isModalVisible === false) setWebViewLoading(true);
     },[isModalVisible])
@@ -64,47 +83,56 @@ const Party = ({ route }) => {
             setUri(baseUri + res._id);
         });
     }, []);
+    const getDateAndHour = (d) => {
+         let date = new Date(d);
+         let minutes = date.getHours() + ":" + (date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes());
+         const string = date
+             .toLocaleDateString("en-EN", {
+                 weekday: "short",
+                 day: "numeric",
+                 month: "short",
+             })
+             .replace();
+         return {date: string, hour: minutes};
+    }
+    
     return (
-        <ScrollView>
+        <View style={{}}>
             {party ? (
-                <View>
-                    <Text.H1>{party.name}</Text.H1>
+                <View style={{paddingBottom: 30}}>
+                <ScrollView>
                     <View
                         style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            paddingHorizontal: 10,
-                            paddingVertical: 5,
-                            width: "100%",
-                            backgroundColor: theme.medium,
                             alignItems: "center",
-                            justifyContent: "space-between",
+                            paddingVertical: 10,
+                            position: "relative",
+                            flexDirection: "row",
+                            //justifyContent: "center",
                         }}
                     >
-                        <Text.P>{party.location}</Text.P>
-                        <View
+                        <Text.H1>{party.name}</Text.H1>
+                        <Text.H3
                             style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                                gap: 5,
-                                flexGrow: 0,
+                                color: theme.transparent.medium,
+                                position: "absolute",
+                                right: 0,
                             }}
                         >
-                            <Icon
-                                name="account-group-outline"
-                                size={30}
-                                color={theme.foreground}
-                            ></Icon>
-                            <Text.P>
-                                {party.people.length}/{party.capacity}
-                            </Text.P>
-                        </View>
+                            {/* {new Date(party.date).getFullYear()} */}
+                        </Text.H3>
                     </View>
-                    <Text.P>{party.description}</Text.P>
-                    <View style={{ flex: 1, flexDirection: "row" }}>
+                    <ScrollView
+                        horizontal={true}
+                        style={{ flex: 1, flexDirection: "row", height: 180 }}
+                    >
                         {party.images.length > 0
                             ? party.images.map((image, i) => {
-                                  console.log(i);
+                                  let words = [
+                                      "hey",
+                                      "comfoojffdfdofjd",
+                                      "hello",
+                                  ];
+                                  //console.log(i);
                                   return (
                                       <Pressable
                                           key={i}
@@ -114,23 +142,99 @@ const Party = ({ route }) => {
                                               //imageIndex = i;
                                           }}
                                       >
-                                          <Image
-                                              source={{
-                                                  uri:
-                                                      baseUrl +
-                                                      "/file/" +
-                                                      image,
-                                              }}
-                                              style={{
-                                                  width: 100,
-                                                  height: 100,
-                                              }}
-                                          ></Image>
+                                          <MyImage
+                                              height={180}
+                                              image={image}
+                                          ></MyImage>
                                       </Pressable>
                                   );
                               })
                             : null}
+                    </ScrollView>
+                    <View
+                        style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            paddingHorizontal: 10,
+                            paddingVertical: 5,
+                            width: "100%",
+                            //backgroundColor: theme.medium,
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                        }}
+                    >
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Icon
+                                name="calendar"
+                                size={22}
+                                color={theme.primary}
+                            ></Icon>
+                            <Text.P style={{ marginLeft: 2 }}>
+                                {getDateAndHour(party.date).date}
+                            </Text.P>
+                        </View>
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Icon
+                                name="clock-outline"
+                                size={22}
+                                color={theme.primary}
+                            ></Icon>
+                            <Text.P style={{ marginLeft: 2 }}>
+                                {getDateAndHour(party.date).hour}
+                            </Text.P>
+                        </View>
+
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 5,
+                            }}
+                        >
+                            <Icon
+                                name="account-group-outline"
+                                size={22}
+                                color={theme.primary}
+                            ></Icon>
+                            <Text.P>
+                                {party.people.length}/{party.capacity}
+                            </Text.P>
+                        </View>
                     </View>
+                    <View
+                        style={{
+                            backgroundColor: theme.transparent.light,
+                            padding: 10,
+                        }}
+                    >
+                        <Text.P>{party.description}</Text.P>
+                    </View>
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 5,
+                        }}
+                    >
+                        <Icon
+                            name="map-marker-outline"
+                            size={30}
+                            color={theme.primary}
+                        ></Icon>
+                        <Text.P>{party.location}</Text.P>
+                    </View>
+
                     <Modal visible={imageModal} transparent={true}>
                         <Carusel
                             images={party.images}
@@ -138,18 +242,7 @@ const Party = ({ route }) => {
                             closeModal={() => setImageModal(false)}
                         />
                     </Modal>
-                    <Button
-                        onPress={() => {
-                            /*buyTicket(party._id).then(res =>{
-                        console.log(res)
-                        setUri(res.link)
-                    })*/
-                            setIsModalVisible(true);
-                        }}
-                    >
-                        Buy €{party.price}
-                    </Button>
-
+                   
                     {
                         <Modal
                             animationType="slide"
@@ -171,9 +264,8 @@ const Party = ({ route }) => {
                                 >
                                     <Pressable
                                         onPress={() => {
-                                            
                                             setIsModalVisible(false);
-                                            message.warning("Order canceled!")
+                                            message.warning("Order canceled!");
                                         }}
                                     >
                                         <Icon
@@ -195,9 +287,11 @@ const Party = ({ route }) => {
                                             borderRadius: 10,
                                         }}
                                         onMessage={(msg) => {
-                                            console.log(msg)
-                                            const data = JSON.parse(msg.nativeEvent.data);
-                                            
+                                            console.log(msg);
+                                            const data = JSON.parse(
+                                                msg.nativeEvent.data
+                                            );
+
                                             console.log("data: ", data);
 
                                             switch (data.type) {
@@ -207,16 +301,20 @@ const Party = ({ route }) => {
                                                 case "loading":
                                                     setWebViewLoading(true);
                                                     break;
-                                                case "success": 
+                                                case "success":
                                                     setIsModalVisible(false);
-                                                    message.success(data.message);
+                                                    message.success(
+                                                        data.message
+                                                    );
                                                     break;
                                                 case "error":
                                                     setIsModalVisible(false);
                                                     message.error(data.message);
-                                                case "canceled": 
-                                                    message.warning(data.message);
-                                                    break
+                                                case "canceled":
+                                                    message.warning(
+                                                        data.message
+                                                    );
+                                                    break;
                                                 default:
                                                     break;
                                             }
@@ -235,11 +333,26 @@ const Party = ({ route }) => {
                             </View>
                         </Modal>
                     }
-                </View>
+                </ScrollView>
+                 <View style={{position: "absolute", bottom: 0, flex: 1, width: "100%"}}>
+                        <Button
+                            onPress={() => {
+                                /*buyTicket(party._id).then(res =>{
+                        console.log(res)
+                        setUri(res.link)
+                    })*/
+                                setIsModalVisible(true);
+                            }}
+                        >
+                            Buy €{party.price}
+                        </Button>
+                    </View>
+            </View>
             ) : (
                 <Text.P>Loading...</Text.P>
             )}
-        </ScrollView>
+        </View>
+        
     );
 };
 const styles = StyleSheet.create({

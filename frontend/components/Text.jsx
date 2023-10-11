@@ -11,7 +11,7 @@ const Text = ({children, style}) => {
 
 const H1 = ({children, style}) =>{
         const theme = useTheme();
-        return (<DefaultText style={{color: theme.foreground, fontSize: 26, fontWeight: "700", ...style}}>{children}</DefaultText>)
+        return (<DefaultText style={{color: theme.primary, fontSize: 26, fontWeight: "700", ...style}}>{children}</DefaultText>)
     }
 const H2 = ({children, style}) =>{
         const theme = useTheme();

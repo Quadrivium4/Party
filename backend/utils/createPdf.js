@@ -11,6 +11,7 @@ async function createPdfList(partyId) {
 	//const cursor = await mongoose.files.find({ _id: ObjectId("64bd2ab2efb8035c6638abcf") });
 
 	const party = await Party.findById(partyId);
+	console.log(party)
 	const colors = {
 		dark: "#000014",
 		medium: "#0F1437",

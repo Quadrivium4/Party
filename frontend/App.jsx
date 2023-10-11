@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Pressable, TouchableWithoutFeedback } from 'react-native';
 import {NavigationContainer, Link, useNavigation} from "@react-navigation/native";
 import {getHeaderTitle} from "@react-navigation/elements";
 import { AuthProvider } from './context/AuthContext';
@@ -6,6 +6,8 @@ import Navigator from './Navigator';
 import { ThemeProvider } from './context/ThemeContext';
 import { MessageProvider } from './context/MessageContext';
 import Message from './components/Message';
+import { StatusBarProvider } from './context/StatusBarContext';
+import { TouchProvider } from './context/TouchContext';
 
 
 const Header = ({ navigation, route, options, back }) =>{
@@ -45,8 +47,12 @@ export default function App() {
       <AuthProvider>
           <ThemeProvider>
               <MessageProvider>
-                  <Message />
-                  <Navigator />
+                  <StatusBarProvider>
+                      <TouchProvider>
+                          <Message />
+                          <Navigator />
+                      </TouchProvider>
+                  </StatusBarProvider>
               </MessageProvider>
           </ThemeProvider>
       </AuthProvider>

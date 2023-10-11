@@ -7,26 +7,39 @@ import { useTheme } from '../context/ThemeContext';
 import WebView from 'react-native-webview';
 import { baseUrl } from '../constants';
 import * as Google from "expo-auth-session/providers/google";
+import Icon from "react-native-vector-icons/AntDesign"
 
 const Button = ({onPress = ()=>{}, children, disabled = false}) =>{
-    console.log(disabled)
+    //console.log(disabled)
+    const [timeoutOpacity,setTimeoutOpacity ] = useState();
     const [opacity , setOpacity]= useState(disabled? 0.5: 1);
     useEffect(()=>{
-        setOpacity(disabled? 0.5: 1)
+        //console.log("inside button", {disabled})
+        let currentOpacity = disabled ? 0.5 : 1;
+        //console.log({currentOpacity, opacity, timeoutOpacity})
+        if(timeoutOpacity) clearTimeout(timeoutOpacity);
+        
+        setOpacity(currentOpacity)
     },[disabled])
     const theme = useTheme()
     const initialStyles = {
         backgroundColor: theme.primary,
         alignItems: "center",
+        flexDirection: "row",
         justifyContent: "center",
         padding: 5,
-        color: "white"
+        color: "white",
     };
     const handlePress = () =>{
+        let previousOpacity = opacity;
         setOpacity(0.75)
-        setTimeout(()=>{
-            setOpacity(1)
+        
+        let timeout = setTimeout(()=>{
+            //console.log("inside timout" , {disabled})
+            setOpacity(previousOpacity)
         },100)
+        setTimeoutOpacity(timeout)
+        //console.log("outside timout", { disabled });
         onPress();
     }
     return (
@@ -35,8 +48,61 @@ const Button = ({onPress = ()=>{}, children, disabled = false}) =>{
         </Pressable>
     )
     }
+Button.Arrow = ({ onPress = () => {}, children, disabled = false, arrow = "left" }) => {
+    //console.log(disabled)
+    const [timeoutOpacity, setTimeoutOpacity] = useState();
+    const [opacity, setOpacity] = useState(disabled ? 0.5 : 1);
+    useEffect(() => {
+       console.log("inside button", { disabled });
+        let currentOpacity = disabled ? 0.5 : 1;
+        //console.log({ currentOpacity, opacity, timeoutOpacity });
+        if (timeoutOpacity) clearTimeout(timeoutOpacity);
+
+        setOpacity(currentOpacity);
+    }, [disabled]);
+    const theme = useTheme();
+    const initialStyles = {
+
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 5,
+        color: theme.primary,
+    };
+    const handlePress = () => {
+        let previousOpacity = opacity;
+        setOpacity(0.75);
+
+        let timeout = setTimeout(() => {
+            console.log("inside timout", { disabled });
+            setOpacity(previousOpacity);
+        }, 100);
+        setTimeoutOpacity(timeout);
+        console.log("outside timout", { disabled });
+        onPress();
+    };
+    return (
+        <Pressable
+            onPress={handlePress}
+            style={{ ...initialStyles, opacity }}
+            disabled={disabled}
+        >
+            <View style={{ flexDirection: arrow === "right"? "row-reverse" : "row", alignItems: "center", justifyContent:"center" }}>
+                <Icon name={arrow} size={15} color={theme.primary} />
+                <Text.P
+                    style={{
+                        color: initialStyles.color,
+                        textTransform: "uppercase",
+                        fontWeight: "400",
+                    }}
+                >
+                    {children}
+                </Text.P>
+            </View>
+        </Pressable>
+    );
+};
 Button.Google = ({ onPress = () => {}, children, disabled = false }) => {
-    console.log(disabled);
+    //console.log(disabled);
     const [opacity, setOpacity] = useState(disabled ? 0.5 : 1);
     const { loginWithGoogle } = useAuth();
     const [request, response, promptAsync] = Google.useAuthRequest({
@@ -49,7 +115,7 @@ Button.Google = ({ onPress = () => {}, children, disabled = false }) => {
     });
             
     useEffect(() => {
-        //handleSignInWithGoogle();
+        handleSignInWithGoogle();
     }, [response]);
     useEffect(() => {
         setOpacity(disabled ? 0.5 : 1);
@@ -86,7 +152,7 @@ Button.Google = ({ onPress = () => {}, children, disabled = false }) => {
                 style={{ ...initialStyles, opacity }}
                 disabled={disabled}
             >
-                <View style={{ display: "inline-block", flexDirection: "row" }}>
+                <View style={{  flexDirection: "row" }}>
                     <Image
                         source={require("../assets/google-logo.png")}
                         style={{ width: 20, height: 20, marginRight: 10 }}

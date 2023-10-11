@@ -231,7 +231,7 @@ function getAuthAssertionValue(sellerPayerId) {
     const authAssertionHeader = `${auth1}.${auth2}.`;
     return authAssertionHeader;
 }
-refund("R33KB35RFSEPG", "8N35000562703080S")
+//refund("R33KB35RFSEPG", "8N35000562703080S")
 module.exports = {
     capturePayment,
     retrieveOrder,

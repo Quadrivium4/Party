@@ -16,17 +16,13 @@ import { useMessage } from "../context/MessageContext";
 
 const Message = () => {
     const theme = useTheme();
-	const {content, type} = useMessage();
+	const messageObj = useMessage();
 	const slideAnim = useRef(new Animated.Value(10)).current;
 	const fadeAnim = useRef(new Animated.Value(1)).current;
-	const [message, setMessage] = useState(content);
+	const [message, setMessage] = useState(messageObj.content);
 	useEffect(()=>{
-		console.log("content changed", content)
-		setMessage(content)
-	},[content])
-	useEffect(()=>{
-		console.log("message changed", message);
-		console.log({message})
+		//console.log("message changed", message);
+		//console.log({message})
 	},[message])
 	const animation = useRef(Animated.sequence([
             Animated.timing(slideAnim, {
@@ -44,9 +40,10 @@ const Message = () => {
         ])).current
 		
 	const reset = ({finished}) =>{
-		console.log("reset..",{finished})
+		//console.log("reset..",{finished})
 		animation.reset();
-		console.log({slideAnim, fadeAnim})
+		//console.log({slideAnim, fadeAnim})
+		
 		setMessage(null);
 	}
 	const colors = {
@@ -55,22 +52,26 @@ const Message = () => {
 		warning: "rgba(215,200, 0, 0.9)"
 	}
 	useEffect(() => {
+		//console.log("content changed!!1")
+		setMessage(messageObj.content);
 		animation.start(reset);
-		return () =>animation.reset();
-	},[content]);
+		return () =>{
+			reset({finished: true});
+		};
+	},[messageObj]);
     return message ? (
         <TouchableWithoutFeedback onPress={reset}>
             <Animated.View
                 style={{
                     ...styles.message,
-                    backgroundColor: colors[type],
+                    backgroundColor: colors[messageObj.type],
                     top: slideAnim,
                     opacity: fadeAnim,
                 }}
                 onTouchStart={() => console.log("hello")}
             >
                 <Text.H3 style={{ color: "rgba(10,10,10, 0.75)" }}>
-                    {message}hello
+                    {message}
                 </Text.H3>
             </Animated.View>
         </TouchableWithoutFeedback>

@@ -20,7 +20,7 @@ const Home = () =>{
 }
 const Default = createNativeStackNavigator();
 const prefix = Linking.createURL('/');
-console.log(prefix)
+//console.log(prefix)
 const config = {
     screens: {
         Home: {
@@ -46,7 +46,7 @@ const linking = {
 const Navigator = () =>{
     const {logged, loading } = useAuth();
     const theme = useTheme()
-    console.log({logged, loading})
+    //console.log({logged, loading})
     return (
         <NavigationContainer 
         linking={linking} 

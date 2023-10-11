@@ -14,6 +14,7 @@ const MessageProvider = ({ children }) => {
     const [state, setState] = useState({content: null, type: null});
     const message = {
         error: (message) => {
+            console.log("new error message dispatched", message)
             setState({ content: message, type: "error" });
         },
         success: (message) => {

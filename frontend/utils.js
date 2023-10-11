@@ -48,11 +48,18 @@ const insertScriptHead = ({ name, src }) => {
         container.appendChild(scriptElement)
     }
 }
+
 const getDateFormatted = (d) =>{
     console.log("hello")
     date = new Date(d);
-    const string = date.getDate() + "/" + (date.getMonth() + 1) + "/" + ((date.getFullYear() + "").substr(2,3))
+    let minutes = date.getMinutes() < 10?  `0${date.getMinutes()}`: date.getMinutes();
+    const string =  date.getHours() + ":" +  minutes + "  " + date.getDate() + "/" + (date.getMonth() + 1) + "/" + ((date.getFullYear() + "").substr(2,3)) 
     return string
+}
+const getDateDifference = (d1, d2) =>{
+    d1 = new Date(d1).valueOf()
+    d2 = new Date(d2).valueOf()
+    return Math.abs(d2 - d1);
 }
 
 const loadPaypal = () => {
@@ -76,5 +83,6 @@ export {
     crossing,
     protectedCrossing,
     insertScriptHead,
-    getDateFormatted
+    getDateFormatted,
+    getDateDifference
 }

@@ -1,8 +1,8 @@
 const express = require("express");
-const { register, login, logout, getUser, verify, deleteAccount } = require("./controllers/user");
+const { register, login, logout, getUser, verify, deleteAccount, googleLogin, signInWithGoogle} = require("./controllers/user");
 const { tryCatch } = require("./utils");
 const verifyToken = require("./middlewares/verifyToken");
-const { getParties, postParty, getParty } = require("./controllers/party");
+const {  postParty, getParty, getNearParties, getMyParties } = require("./controllers/party");
 const { createOrder, capturePayment } = require("./utils/paypal");
 const { buy, completeOnboarding, getOnboardingLink, confirmPayment, sendEmailPaymentConfirmation, checkoutPage, checkoutPageTest, cancelOrder, refundAll } = require("./controllers/payment");
 const { getTickets } = require("./controllers/tickets");
@@ -13,10 +13,13 @@ const protectedRouter = express.Router();
 
 protectedRouter.use(tryCatch(verifyToken));
 
+
 publicRouter.route("/parties")
     .get((req, res)=>{
         res.send({party: 1, name: "Super party"})
     })
+publicRouter.get("/google-login", tryCatch(googleLogin))
+publicRouter.post("/google-login", tryCatch(signInWithGoogle))
 publicRouter.post("/login", tryCatch(login))
 publicRouter.post("/register", tryCatch(register));
 publicRouter.post("/verify", tryCatch(verify))
@@ -36,8 +39,9 @@ protectedRouter.get("/refund", tryCatch(refundAll))
 
 
 protectedRouter.get("/logout", tryCatch(logout));
+protectedRouter.get("/near-parties", tryCatch(getNearParties))
 protectedRouter.route("/party")
-    .get(tryCatch(getParties))
+    .get(tryCatch(getMyParties))
     .post(tryCatch(postParty))
 protectedRouter.route("/party/:id")
     .get(tryCatch(getParty))

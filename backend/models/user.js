@@ -13,14 +13,15 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         trim: true,
-        rquired: true
+    },
+    parties: [],
+    oldParties: [],
+    stats: {
+        numberOfParties: 0,
+        ratings: 0,
     },
     tokens: [],
     tickets: [],
-    stripeId: {
-        type: String,
-        trim: true,
-    },
     paypalBusinessId: {
         type: String,
         trim: true

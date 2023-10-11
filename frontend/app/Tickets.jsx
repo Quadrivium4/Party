@@ -9,6 +9,7 @@ import ShiftingView from '../components/ShiftingView';
 import { postParty } from '../controllers/party';
 import { getOnboardingLink } from '../controllers/payment';
 import { getTickets } from '../controllers/tickets';
+import { AButton } from '../components/A';
 
 const Tickets = ({route}) =>{
     const {logout, user} = useAuth();
@@ -38,8 +39,10 @@ const Tickets = ({route}) =>{
                 loading ? <Text.P>loading</Text.P> :
                     !tickets? <Text.P>You have no tickets</Text.P> : 
                     tickets.map(ticket=>{
+                        console.log(ticket)
                         return <View key={ticket._id}> 
                             <Text.H2>{ticket.name}</Text.H2>
+                            <AButton to={"ChatRoom"} params={{chatId: ticket.chat}}>go to chat</AButton>
                         </View>
                     })
             }

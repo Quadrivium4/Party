@@ -1,5 +1,8 @@
-const { createUser, findUser, logoutUser, createUnverifiedUser, verifyUser, deleteUser} = require("../functions/user");
+require("dotenv").config();
+
+const { createUser, findUser, logoutUser, createUnverifiedUser, verifyUser, deleteUser, createOrLoginUserFromGoogle} = require("../functions/user");
 const User = require("../models/user");
+const { extractBearerToken } = require("../utils");
 const sendMail = require("../utils/sendMail");
 
 const register = async(req, res) =>{
@@ -14,6 +17,18 @@ const register = async(req, res) =>{
                 <a href="${link}">verify</a>`
     })
     res.send(user);
+}
+const googleLogin = async(req, res) =>{
+    res.render("googleLogin", {
+    })
+}
+const signInWithGoogle = async (req, res) => {
+    console.log("logging with google...")
+    const token = extractBearerToken(req);
+    if (!token) throw new AppError(1, 403, "Invalid Token");
+    const { user, aToken } = await createOrLoginUserFromGoogle(token);
+    console.log({user, aToken})
+    res.send({user, aToken});
 }
 const verify = async (req, res) => {
     const {id,  token } = req.body;
@@ -50,5 +65,7 @@ module.exports = {
     logout,
     getUser,
     verify,
-    deleteAccount
+    deleteAccount,
+    googleLogin,
+    signInWithGoogle
 }

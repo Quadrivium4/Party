@@ -56,12 +56,18 @@ function deg2rad(deg) {
 const distanceBetweenEarthPoints = (point1, point2) =>{
     return getDistanceFromLatLonInKm(point1.y, point1.x, point2.y, point2.x)
 }
-
+function extractBearerToken(req){
+    if (!req.headers.authorization) return false
+    if (!req.headers.authorization.startsWith("Bearer ")) return false;
+    const token = req.headers.authorization.split(" ")[1];
+    return token;
+}
 module.exports = {
     validateEmail,
     tryCatch,
     hashPassword,
     comparePassword,
     createTokens,
-    distanceBetweenEarthPoints
+    distanceBetweenEarthPoints,
+    extractBearerToken
 }

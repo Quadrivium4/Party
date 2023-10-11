@@ -6,6 +6,31 @@ const {validateEmail, hashPassword, comparePassword, createTokens} = require("..
 const User = require("../models/user");
 const UnverifiedUser = require("../models/unverifiedUser");
 
+
+const createOrLoginUserFromGoogle = async(accessToken) =>{
+    const googleUser = await fetch("https://www.googleapis.com/userinfo/v2/me", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    }).then(res => res.json());
+    if (googleUser.error) throw new AppError(1, 401, googleUser.error.message);
+    console.log({googleUser})
+    let user = await User.findOne({
+        email: googleUser.email
+    });
+    if (!user) {
+        user = await User.create({
+        name: googleUser.given_name,
+        email: googleUser.email
+    });
+}
+    const { aToken } = createTokens(user.id, user.email);
+    user = await User.findByIdAndUpdate(user.id,
+        {
+            tokens: [...user.tokens, aToken]
+        }, { new: true });
+    console.log({user, aToken})
+    return { user, aToken };
+}
+
 const createUser = async(name, email, password) =>{
     let user = await User.create({
         name,
@@ -78,5 +103,6 @@ module.exports = {
     findUser,
     logoutUser,
     verifyUser,
-    deleteUser
+    deleteUser,
+    createOrLoginUserFromGoogle
 }

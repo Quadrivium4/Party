@@ -12,6 +12,8 @@ import A from '../components/A';
 import { useTheme } from '../context/ThemeContext';
 import WebView from 'react-native-webview';
 import { useMessage } from '../context/MessageContext';
+import Pop from '../components/Pop';
+import Loader from '../components/Loader';
 
 const getUserLocation = async()=>{
     const permission = await Location.requestForegroundPermissionsAsync();
@@ -27,9 +29,11 @@ const Home = ({route, navigation}) =>{
     //console.log({route, navigation})
     const {logout, user} = useAuth();
     const [parties, setParties] = useState();
-    const [radius, setRadius] = useState(500);
+    const [radius, setRadius] = useState(5000);
     const [coords, setCoords] = useState();
     const {message, content} = useMessage()
+    const [popVisible, setPopVisible] = useState(false);
+    const [loading, setLoading] = useState(true)
    // const navigation = useNavigation();
     const theme = useTheme();
     useEffect(()=>{
@@ -50,27 +54,25 @@ const Home = ({route, navigation}) =>{
                     setParties(res);
                 })
             }
+            setLoading(false)
         } 
         
         fetchParties();
     },[radius, coords])
     return (
-        /*<WebView
-                    source={{ uri: "http://172.20.10.2:5000/checkout" }}
-                    style={{ width: Dimensions.get("window").width, height: 400 }}
-                ></WebView>*/
+      
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{ marginTop: 0, flex: 1}}>
+            <View style={{ marginTop: 0, flex: 1 }}>
                 <Input.Maps
                     onChangeText={(e) => setCoords(e.coords)}
                     defaultValue={"Your Position"}
                 ></Input.Maps>
                 <Input.Number
                     style={{ marginTop: 0 }}
-                    defaultValue={50}
+                    defaultValue={50000}
                     onChangeText={setRadius}
                 ></Input.Number>
-                <FlatList
+                {parties && parties.length> 0 ? <FlatList
                     style={{ padding: parties?.length > 0 ? 10 : 0 }}
                     data={parties}
                     renderItem={({ item: party }) => {
@@ -89,7 +91,10 @@ const Home = ({route, navigation}) =>{
                                         padding: 5,
                                     }}
                                 >
-                                    <Text.H3>{party.name}</Text.H3>
+                                    <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
+                                        <Text.H3>{party.name}</Text.H3> 
+                                        <Text.P style={{color: party.pdfList || party.capacity == party.people.length? "red" : "green"}}>{ party.pdfList? "closed" :  party.capacity == party.people.length? "full"  : "open"}</Text.P>
+                                    </View>
                                     <Text.P>{party.location}</Text.P>
                                     <Text.P>owner: {party.owner.name}</Text.P>
                                 </View>
@@ -97,11 +102,25 @@ const Home = ({route, navigation}) =>{
                         );
                     }}
                     keyExtractor={(item) => item._id}
-                ></FlatList>
-
-                <Button onPress={()=>message.success("yeeeeee" + Math.random())}>press me</Button>
-
+                ></FlatList> : !parties && loading? <Loader visible={loading}></Loader> : <Text.P>No parties found</Text.P>
+                }
                 
+                <Pop visible={popVisible} toggle={() => setPopVisible(false)}>
+                    <Text.H1>Hello</Text.H1>
+                    <Text.P>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Nulla euismod accumsan tellus, id commodo ligula
+                        consequat quis. Nunc sit amet augue elit. Morbi posuere
+                        risus sollicitudin lorem placerat placerat. Sed sed
+                        sapien purus. Class aptent taciti sociosqu ad litora
+                        torquent per conubia nostra, per inceptos himenaeos.
+                        Proin vulputate sed tellus ut dapibus. Pellentesque
+                        dolor nisl, pretium vitae laoreet a, tincidunt vulputate
+                        lacus. Donec laoreet volutpat fringilla. Vivamus felis
+                    </Text.P>
+                    <Button onPress={() => setPopVisible(false)}>hey</Button>
+                </Pop>
+                <Button onPress={() => setPopVisible(true)}>press me</Button>
             </View>
         </TouchableWithoutFeedback>
     );

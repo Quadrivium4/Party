@@ -13,7 +13,7 @@ const authState = {
     user: null
 }
 const authReducer = (state, action) =>{
-    console.log("dispatching...", action)
+    //console.log("dispatching...", action)
     switch (action.type) {
          case "SET_LOADING":
             return {...state, loading: action.value}
@@ -42,7 +42,7 @@ const AuthProvider = ({children}) =>{
                 dispatch({ type: "SET_TOKEN", value: token })
                 dispatch({ type: "SET_LOGGED", value: true })
                 
-                console.log("is logged", token)
+                //console.log("is logged", token)
                 
             }
             isLogged().then(()=> dispatch({ type: "SET_LOADING", value: false})).catch(err=>{

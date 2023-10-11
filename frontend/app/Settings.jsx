@@ -8,20 +8,15 @@ import Input from '../components/Input';
 import ShiftingView from '../components/ShiftingView';
 import { postParty } from '../controllers/party';
 import { useTheme } from '../context/ThemeContext';
-const Comp = ({children}) =>{
-    return <>{children}</>
-}
-const NestedComp = ({props}) =>{
-        return <Text.H2>Hi im nested</Text.H2>
-    }
-Comp.NestedComp = NestedComp
+
 const Settings = () =>{
     const {logout, user, deleteAccount} = useAuth();
     const theme = useTheme();
     return (
         <View>
-            <Text.H1>Hello Settings</Text.H1>
-            <Comp.NestedComp></Comp.NestedComp>
+            <Text.H1>{user.name}</Text.H1>
+            <Text.P>{user.email}</Text.P>
+            
             <Button onPress={logout}>Log out</Button>
             <Button onPress={deleteAccount}>Delete Account</Button>
             <Button onPress={theme.toggleTheme}>Toggle theme</Button>

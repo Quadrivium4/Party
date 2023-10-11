@@ -16,13 +16,13 @@ import { useTheme } from "../context/ThemeContext";
 import * as Constants from "expo-constants";
 import Text from "./Text";
 import Loader from "./Loader";
-const MyImage = ({uri}) =>{
+const MyImage = ({image}) =>{
     const [loading, setLoading] = useState(true)
     return (
     <>
     <Image
             source={{
-                uri: baseUrl + "/file/" + uri,
+                uri: baseUrl + "/file/" + image.id,
             }}
             onLoad={()=>setLoading(false)}
             style={{
@@ -36,7 +36,7 @@ const MyImage = ({uri}) =>{
     </>)
 }
 const Carusel = ({ images, i = 0, closeModal }) => {
-    console.log({ i });
+    console.log({ images });
     const [index, setIndex] = useState(i);
     const theme = useTheme();
     const [itemLoading, setItemLoading] = useState(false);
@@ -44,15 +44,18 @@ const Carusel = ({ images, i = 0, closeModal }) => {
         x: 0,
         y: 0,
     };
-    let start = 0;
+    
     let timeStart = 0;
+    let previousVelocity =0;
     let offset = i * Dimensions.get("window").width;
+    let scriptScroll = false;
+    let start =  offset;
     const carusel = useRef();
-    const scrollLeft = (num) => {
+    const scrollLeft = (num = 1) => {
         if (!index > 0) return;
         let indexToScroll = index - num;
         if(index -num < 0) indexToScroll = 0;
-        console.log("scrolling left...", { index, max: images.length -1, num});
+        //console.log("scrolling left...", { index, max: images.length -1, num});
         
 
         carusel.current.scrollToIndex({
@@ -60,16 +63,27 @@ const Carusel = ({ images, i = 0, closeModal }) => {
         });
         setIndex(indexToScroll);
     };
-    const scrollRight = (num) => {
-        console.log("scrolling right...", { index, max: images.length - 1, num});
+    const scrollRight = (num = 1) => {
+        
+        //console.log("scrolling right...", { index, max: images.length - 1, num});
         if (!(index < images.length - 1)) return;
         let indexToScroll = index + num;
         if (indexToScroll > images.length - 1) indexToScroll = images.length - 1;
         carusel.current.scrollToIndex({
             index: indexToScroll,
+
         });
         setIndex(indexToScroll);
     };
+     const scrollP = (num = 1) => {
+
+         carusel.current.scrollToIndex({
+             index: num,
+         });
+         setIndex(num);
+         scriptScroll = false;
+         console.log(scriptScroll)
+     };
     const noScroll = () => {
         carusel.current.scrollToIndex({ index });
     };
@@ -81,7 +95,16 @@ const Carusel = ({ images, i = 0, closeModal }) => {
                 backgroundColor: "rgba(0,0,0, 0.5)",
             }}
         >
-            
+            <TouchableWithoutFeedback onPress={() => closeModal()}>
+                <View
+                    style={{
+                        backgroundColor: "transparent",
+                        height: "100%",
+                        width: "100%",
+                        position: "absolute",
+                    }}
+                ></View>
+            </TouchableWithoutFeedback>
             <View
                 style={{
                     justifyContent: "center",
@@ -90,34 +113,51 @@ const Carusel = ({ images, i = 0, closeModal }) => {
                 <Animated.FlatList
                     ref={carusel}
                     horizontal={true}
-                    keyExtractor={(item) => item}
+                    keyExtractor={(item) => item.id}
                     //onLayout={()=> carusel.current.scrollToIndex({index: i})}
                     initialScrollIndex={i}
                     onTouchStart={(e) => {
                         //console.log(t);
-                        start = e.nativeEvent.pageX;
                         t.x = e.nativeEvent.pageX;
-                        timeStart = Date.now();
+                        timeStart = performance.now();
                         //carusel.current.scrollToOffset(offset)
                         //console.log("touch start", t.x);
                     }}
+                    scrollEventThrottle={75}
+                    onScroll={(e)=>{
+                        if(scriptScroll) return;
+                        let currentTime = timeStart - performance.now();
+                        let currentVelocity = Math.abs((start - e.nativeEvent.contentOffset.x) / (currentTime/10));
+                        
+                        //console.log(currentVelocity, previousVelocity)
+                        if(currentVelocity < 0.7 && previousVelocity > currentVelocity) {
+                            console.log("slowing...")
+                            let movement = e.nativeEvent.contentOffset.x;
+                            console.log(movement);
+                            const total = Math.round(
+                                movement / Dimensions.get("window").width
+                            );
+                            console.log({ total });
+                            scrollP(total)
+                            
+                        }
+                        timeStart = performance.now();
+                        start = e.nativeEvent.contentOffset.x;
+                        previousVelocity = currentVelocity;
+                    }}
+                    
                     /*onMomentumScrollEnd={(e)=>{
                         console.log("scrolled end")
                         let x = e.nativeEvent.pageX;
                         let movement = e.nativeEvent.contentOffset.x;
-                        const total = Math.round(movement / Dimensions.get("window").width);
+                        console.log(movement)
+                        const total = Math.round(
+                            movement /
+                                Dimensions.get("window").width
+                        );
                         console.log({total});
-                        if (movement > 40) {
-                            console.log("left");
-
-                            return scrollRight(total);
-                        }
-                        if (movement < -40) {
-                            console.log("right");
-                            return scrollLeft(total);
-                        }
-                        return noScroll();
-                    }}*/
+                        //scrollP(total)
+                    }}
                     onTouchEnd={(e) => {
                         //console.log(t);
                         let x = e.nativeEvent.pageX;
@@ -141,7 +181,7 @@ const Carusel = ({ images, i = 0, closeModal }) => {
                         },400)
                         
                         
-                    }}
+                    }}*/
                     getItemLayout={(data, index) => {
                         return {
                             length: Dimensions.get("window").width,
@@ -156,17 +196,17 @@ const Carusel = ({ images, i = 0, closeModal }) => {
                         flexGrow: 0,
                     }}
                     renderItem={({ item, index }) => {
-                        
+                        console.log(item)
                         return (
                             <MyImage
-                                uri={item}
+                                image={item}
                             ></MyImage>
                         );
                     }}
                 ></Animated.FlatList>
 
                 <Pressable
-                    onPress={scrollLeft}
+                    onPress={()=>scrollLeft()}
                     style={{
                         position: "absolute",
                         backgroundColor: "rgba(0,0,0, 0.5)",
@@ -183,7 +223,7 @@ const Carusel = ({ images, i = 0, closeModal }) => {
                     />
                 </Pressable>
                 <Pressable
-                    onPress={scrollRight}
+                    onPress={()=>scrollRight()}
                     style={{
                         position: "absolute",
                         backgroundColor: "rgba(0,0,0, 0.5)",

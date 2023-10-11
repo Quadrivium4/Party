@@ -1,24 +1,34 @@
 const { getPartiesInGivenArea } = require("../functions/party");
+const ChatRoom = require("../models/chatRoom");
 const Party = require("../models/party");
 const User = require("../models/user");
 const { onPartyExpires } = require("../utils/cronJobs");
 const { saveFile } = require("../utils/files");
 
 const postParty = async(req, res) =>{
-    console.log(req.body, req.files)
-    const {name, description, location, price, x, y, capacity, date, purchaseDeadline } = req.body;
+    console.log(req.body, req.files);
+    if(!req.user.paypalBusinessId) throw new AppError(1, 403, "You must have a paypal Business account linked")
+    const {name, description, location, price, x, y, capacity, date, purchaseDeadline, imagesAspectRatio } = req.body;
     const promises = [];
     if(req.files){
         console.log("hello", req.files)
-        for (const [key, value] of Object.entries(req.files)) {
-            console.log({key, value});
-            promises.push(saveFile(value));
+        if(!Array.isArray(req.files.images) && typeof req.files.images === "object") promises.push(saveFile(req.files.images));
+        if(Array.isArray(req.files.images)){
+            req.files.images.forEach((image, i) => {
+                promises.push(saveFile(image));
+            })
         }
     }
-    const images = await Promise.all(promises);
+    const imagesObjectIds = await Promise.all(promises);
+    const images = imagesObjectIds.map((imageId, i)=> {
+        return { 
+            id: imageId,
+            aspectRatio: imagesAspectRatio[i]
+        }
+    })
     console.log({images})
     
-    const party = await Party.create({
+    let party = await Party.create({
         name,
         description,
         location,
@@ -31,10 +41,22 @@ const postParty = async(req, res) =>{
         images,
         owner: req.user.id
     })
-    onPartyExpires(party.id);
+    onPartyExpires(party);
+    const chatRoom = await ChatRoom.create({party: party.id, people: [party.owner], messages: [], admin: party.owner});
+    party = await Party.findByIdAndUpdate(party.id, {
+        chat: chatRoom.id
+    })
+    const user = await User.findByIdAndUpdate(req.user.id, {$push: {parties: party.id}});
     res.send(party);
 }
-const getParties = async(req, res) => {
+const getMyParties = async (req, res) => {
+    const user = req.user;
+    console.log(user)
+    const parties = await Party.find({_id: {$in: user.parties}});
+    console.log({parties})
+    res.send(parties)
+}
+const getNearParties = async(req, res) => {
     console.log("getting parties...")
     const { latitude, longitude, radius } = req.query;
     console.log(req.query)
@@ -66,6 +88,7 @@ const getParty = async(req, res) => {
 }
 module.exports = {
     postParty,
-    getParties,
+    getNearParties,
+    getMyParties,
     getParty
 }
