@@ -24,7 +24,7 @@ const A = ({children, to, style}) =>{
         </Pressable>
     );
 }
-const AButton = ({ children, to, params }) => {
+const AButton = ({ children, to, params, ...props }) => {
     const [opacity, setOpacity] = useState(1);
     const navigation = useNavigation();
     const handlePress = () => {
@@ -35,7 +35,7 @@ const AButton = ({ children, to, params }) => {
         navigation.navigate(to,params);
     };
     return (
-        <Button onPress={handlePress} style={{ ...initialStyles, opacity }}>
+        <Button onPress={handlePress} style={{ ...initialStyles, opacity }} {...props}>
             {children}
         </Button>
     );

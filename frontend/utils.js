@@ -1,6 +1,8 @@
 import * as SecureStore from 'expo-secure-store';
 
 const crossing = async (url, method = "GET", body = {}, headers = {}) => {
+    console.log("using crossing", {body})
+    await new Promise((resolve) => setTimeout(resolve, 0 * 1000));
     let result;
     if (method === "GET" || method === "DELETE") {
         result = await fetch(url, {
@@ -36,7 +38,12 @@ const crossing = async (url, method = "GET", body = {}, headers = {}) => {
     return result
 }
 const protectedCrossing = async(url, method = "GET", body = {}, headers = {}) =>{
-    return await crossing(url, method, body, { "Authorization" : "Bearer " + await SecureStore.getItemAsync("aToken"), ...headers});
+    const aToken = await SecureStore.getItemAsync("aToken");
+    return await crossing(url, method, body, { "Authorization" : "Bearer " + aToken, ...headers});
+}
+const validateEmail = (email) => {
+    const expression = /([-!#-'*+/-9=?A-Z^-~]+(\.[-!#-'*+/-9=?A-Z^-~]+)*|"([]!#-[^-~ \t]|(\\[\t -~]))+")@([-!#-'*+/-9=?A-Z^-~]+(\.[-!#-'*+/-9=?A-Z^-~]+)*|\[[\t -Z^-~]*])/i;
+    return expression.test(String(email).toLowerCase());
 }
 const insertScriptHead = ({ name, src }) => {
     if (!document.querySelector(`#${name}`)) {
@@ -84,5 +91,6 @@ export {
     protectedCrossing,
     insertScriptHead,
     getDateFormatted,
-    getDateDifference
+    getDateDifference,
+    validateEmail
 }

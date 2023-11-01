@@ -12,18 +12,16 @@ const AuthNavigator = () =>{
     //console.log(theme)
     return (
         <AuthStack.Navigator
-            
             screenOptions={({ route }) => ({
-                header: (props) => <Header {...props}/>,
+                header: (props) => <Header {...props} />,
                 contentStyle: {
-                    backgroundColor: theme.strong
-                }
-                
-                
+                    backgroundColor: theme.strong,
+                },
             })}
         >
             <AuthStack.Screen name="SignUp" component={SignUp} />
             <AuthStack.Screen name="Login" component={Login} />
+
             <AuthStack.Screen name="Verify" component={Verify} />
         </AuthStack.Navigator>
     );

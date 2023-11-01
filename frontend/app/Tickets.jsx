@@ -17,21 +17,15 @@ const Tickets = ({route}) =>{
     const [tickets, setTickets] = useState();
     const [loading, setLoading] = useState(true);
     const [hello, setHello] = useState();
-
-    useFocusEffect(
-        //console.log(tickets)
-        useCallback(()=>{
-            if(tickets == undefined || route.params?.reload){
-                getTickets().then(res=>{
-                    setTickets(res);
-                    console.log(res)
-                    setLoading(false)
-                })
-            }
-            return setTickets
-        },[])
-    )
-
+    useEffect(()=>{
+        if(!tickets || route.params?.reload){
+            getTickets().then(res=>{
+                setTickets(res);
+                console.log(res)
+                setLoading(false)
+            })
+        }
+    },[route.params?.reload])
     return (
         <View>
             <Text.H1>Your Tickets{hello}</Text.H1>

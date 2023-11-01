@@ -52,6 +52,9 @@ const createUnverifiedUser = async (name, email, password) => {
     if (!name || !email || !password) throw new AppError(1, 401, "Invalid Credentials");
     if (!validateEmail(email)) throw new AppError(1, 401, "Invalid Email");
     if (password.length < 6 || password.length > 50) throw new AppError(1, 401, "Password must be more than 6 characters long");
+    // There is already a user with that email
+    let alreadyExistingUser = await User.findOne({email});
+    if (alreadyExistingUser) throw new AppError(1, 401, "An user with that email already exists");
     const hashedPassword = await hashPassword(password);
     
     let user = await UnverifiedUser.create({
@@ -66,11 +69,12 @@ const createUnverifiedUser = async (name, email, password) => {
 const findUser = async (email, password) => {
     email = email.trim();
     password = password.trim();
-    if (!email || !password) throw new AppError(1, 401, "Invalid Credentials");
-    if (!validateEmail(email)) throw new AppError(1, 401, "Invalid Email");
+    if (!email) throw new AppError(1002, 401, "Invalid Email");
+    if (!validateEmail(email)) throw new AppError(1002, 401, "Invalid Email");
     let user = await User.findOne({email});
-    if(!user) throw new AppError(1, 401, "No user with that email found");
-    if(!await comparePassword(password, user.password)) throw new AppError(1, 401, "Incorrect Password");
+    if (!user) throw new AppError(1002, 401, "Invalid Email");
+    if (!password) throw new AppError(1003, 401, "Invalid Password");
+    if(!await comparePassword(password, user.password)) throw new AppError(1003, 401, "Invalid Password");
     
     const { aToken } = createTokens(user.id, email);
     user = await User.findByIdAndUpdate(user.id,
@@ -80,6 +84,7 @@ const findUser = async (email, password) => {
     return {aToken, user};
 }
 const verifyUser = async(id, token) =>{
+    console.log(id, token)
     const unverifiedUser = await UnverifiedUser.findOneAndDelete({_id: id, token});
     console.log(unverifiedUser)
     if (!unverifiedUser) throw new AppError(1, 401, "Cannot Verify User");

@@ -5,7 +5,7 @@ import {useState, useEffect} from "react";
 import { useAuth, useAuthDispatch } from '../context/AuthContext';
 import Text from './Text';
 const {State: TextInputState} = TextInput;
-const ShiftingView= ({children}) =>{
+const ShiftingView= ({children, style = {}}) =>{
 
     
     
@@ -19,7 +19,8 @@ const ShiftingView= ({children}) =>{
                 }}
             >
                 <ScrollView
-                    style={{ padding: 10 }}
+                    contentContainerStyle={style}
+                    style={{ padding: 10}}
                     keyboardShouldPersistTaps="always"
                 >
                     {children}

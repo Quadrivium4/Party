@@ -9,7 +9,7 @@ import { baseUrl } from '../constants';
 import * as Google from "expo-auth-session/providers/google";
 import Icon from "react-native-vector-icons/AntDesign"
 
-const Button = ({onPress = ()=>{}, children, disabled = false}) =>{
+const Button = ({onPress = ()=>{}, children, type="default", disabled = false, style = {}}) =>{
     //console.log(disabled)
     const [timeoutOpacity,setTimeoutOpacity ] = useState();
     const [opacity , setOpacity]= useState(disabled? 0.5: 1);
@@ -22,14 +22,26 @@ const Button = ({onPress = ()=>{}, children, disabled = false}) =>{
         setOpacity(currentOpacity)
     },[disabled])
     const theme = useTheme()
-    const initialStyles = {
+    const defaultStyles = {
         backgroundColor: theme.primary,
         alignItems: "center",
         flexDirection: "row",
         justifyContent: "center",
         padding: 5,
+        
         color: "white",
     };
+    const outlineStyles = {
+        borderColor: theme.light ,
+        backgroundColor: theme.transparent.light,
+        borderWidth: 1,
+        alignItems: "center",
+        flexDirection: "row",
+        justifyContent: "center",
+        padding: 5,
+        color: theme.primary,
+    };
+    const initialStyles = type == "outline"? outlineStyles : defaultStyles
     const handlePress = () =>{
         let previousOpacity = opacity;
         setOpacity(0.75)
@@ -43,7 +55,7 @@ const Button = ({onPress = ()=>{}, children, disabled = false}) =>{
         onPress();
     }
     return (
-        <Pressable onPress={handlePress} style={{...initialStyles, opacity}} disabled={disabled} >
+        <Pressable onPress={handlePress} style={{...initialStyles, opacity, ...style}} disabled={disabled} >
             <Text.P style={{color: initialStyles.color,  textTransform: 'uppercase', fontWeight: "400"}}>{children}</Text.P>
         </Pressable>
     )
@@ -101,10 +113,10 @@ Button.Arrow = ({ onPress = () => {}, children, disabled = false, arrow = "left"
         </Pressable>
     );
 };
-Button.Google = ({ onPress = () => {}, children, disabled = false }) => {
+Button.Google = ({ onSelectedUserAccount = async(token) =>{}, children, disabled = false }) => {
     //console.log(disabled);
     const [opacity, setOpacity] = useState(disabled ? 0.5 : 1);
-    const { loginWithGoogle } = useAuth();
+
     const [request, response, promptAsync] = Google.useAuthRequest({
         expoClientId:
             "393787719844-185b743u4n9ae2hqb8crlar6n9mskfus.apps.googleusercontent.com",
@@ -115,14 +127,16 @@ Button.Google = ({ onPress = () => {}, children, disabled = false }) => {
     });
             
     useEffect(() => {
-        handleSignInWithGoogle();
+            handleSignInWithGoogle().catch(err=>
+                console.log(err))
+        
     }, [response]);
     useEffect(() => {
         setOpacity(disabled ? 0.5 : 1);
     }, [disabled]);
     async function handleSignInWithGoogle() {
         if (response.type === "success") {
-            loginWithGoogle(response.authentication.accessToken);
+            onSelectedUserAccount(response.authentication.accessToken);
         }
     }
 
@@ -139,7 +153,6 @@ Button.Google = ({ onPress = () => {}, children, disabled = false }) => {
         setTimeout(() => {
             setOpacity(1);
         }, 100);
-        onPress();
     };
     return (
         <>

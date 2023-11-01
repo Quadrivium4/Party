@@ -8,18 +8,29 @@ import Input from '../components/Input';
 import ShiftingView from '../components/ShiftingView';
 import { postParty } from '../controllers/party';
 import { useTheme } from '../context/ThemeContext';
+import { useTouch } from '../context/TouchContext';
+import Loader from '../components/Loader';
 
 const Settings = () =>{
     const {logout, user, deleteAccount} = useAuth();
+    const [loading, setLoading] = useState(false);
     const theme = useTheme();
+    const {logSubscribers} = useTouch();
+    const handleLogout = async() =>{
+        setLoading(true)
+        await logout();
+        setLoading(false)
+    }
     return (
         <View>
+            <Loader fullscreen={true} visible={loading} />
             <Text.H1>{user.name}</Text.H1>
             <Text.P>{user.email}</Text.P>
             
-            <Button onPress={logout}>Log out</Button>
+            <Button onPress={handleLogout}>Log out</Button>
             <Button onPress={deleteAccount}>Delete Account</Button>
             <Button onPress={theme.toggleTheme}>Toggle theme</Button>
+            <Button onPress={logSubscribers}>log subscribers</Button>
         </View>
     );
 }

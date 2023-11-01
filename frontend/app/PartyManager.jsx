@@ -43,10 +43,16 @@ import { useMessage } from "../context/MessageContext";
 import Loader from "../components/Loader";
 import Carusel from "../components/Carusel";
 
-const PartyManager = ({ params }) => {
+const PartyManager = ({route}) => {
+    const {params} = route;
     const { token } = useAuth();
     //console.log({ token });
     const [party, setParty] = useState();
+    return (
+        <View>
+            
+        </View>
+    )
 };
 
 export default PartyManager;

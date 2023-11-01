@@ -56,7 +56,7 @@ const Header = ({navigation, route}) =>{
                 }}
             >
                 {(navigation.canGoBack() && (route.name === "Settings" || route.name === "ChatRoom")) ||
-                route.name === "Party" ? (
+                route.name === "Party" || route.name === "PartyManager"? (
                     <Pressable
                         onPress={navigation.goBack}
                         style={{ flexDirection: "row" }}

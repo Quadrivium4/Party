@@ -1,4 +1,11 @@
 import { StyleSheet, View, Pressable, Image, Modal, Animated, Easing, TouchableWithoutFeedback} from "react-native";
+import  {
+    useSharedValue,
+    withTiming,
+    useAnimatedStyle,
+    runOnJS,
+    runOnUI,
+} from "react-native-reanimated";
 import  Constants  from "expo-constants";
 import {
     NavigationContainer,

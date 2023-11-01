@@ -51,7 +51,7 @@ const Page = ({children}) => {
                     left: 0,
                 }}
             >
-                <View>{children}</View>
+                {children}
             </View>
         </TouchableWithoutFeedback>
     );

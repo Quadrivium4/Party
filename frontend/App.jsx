@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, Pressable, TouchableWithoutFeedback, LogBox } from 'react-native';
 import {NavigationContainer, Link, useNavigation} from "@react-navigation/native";
 import {getHeaderTitle} from "@react-navigation/elements";
 import { AuthProvider } from './context/AuthContext';
@@ -8,7 +8,10 @@ import { MessageProvider } from './context/MessageContext';
 import Message from './components/Message';
 import { StatusBarProvider } from './context/StatusBarContext';
 import { TouchProvider } from './context/TouchContext';
+import React from 'react';
+import ChatRoom from './app/ChatRoom';
 
+LogBox.ignoreAllLogs()
 
 const Header = ({ navigation, route, options, back }) =>{
   const title = getHeaderTitle(options, route.name);
@@ -44,18 +47,20 @@ export default function App() {
   return (
       //<Checkout />
       //<Sandbox />
-      <AuthProvider>
-          <ThemeProvider>
-              <MessageProvider>
-                  <StatusBarProvider>
-                      <TouchProvider>
-                          <Message />
-                          <Navigator />
-                      </TouchProvider>
-                  </StatusBarProvider>
-              </MessageProvider>
-          </ThemeProvider>
-      </AuthProvider>
+      <React.StrictMode>
+          <AuthProvider>
+              <ThemeProvider>
+                  <MessageProvider>
+                      <StatusBarProvider>
+                          <TouchProvider>
+                              <Message />
+                              <Navigator />
+                          </TouchProvider>
+                      </StatusBarProvider>
+                  </MessageProvider>
+              </ThemeProvider>
+          </AuthProvider>
+      </React.StrictMode>
   );
 }
 

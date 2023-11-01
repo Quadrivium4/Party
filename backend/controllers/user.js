@@ -31,6 +31,7 @@ const signInWithGoogle = async (req, res) => {
     res.send({user, aToken});
 }
 const verify = async (req, res) => {
+    console.log(req.body)
     const {id,  token } = req.body;
     const {name, email, password}= await verifyUser(id, token);
     console.log({name, email, password})

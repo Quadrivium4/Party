@@ -1,17 +1,16 @@
 import { StyleSheet, View, Pressable,  TextInput} from 'react-native';
 import {NavigationContainer, Link, useNavigation} from "@react-navigation/native";
-import { useAuth, useAuthDispatch } from '../context/AuthContext';
+import { useAuth} from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import Text from '../components/Text';
 import * as Linking from 'expo-linking';
 import Button from '../components/Button';
 const Verify = ({route}) =>{
-    const dipatch = useAuthDispatch();
     const {verify} = useAuth();
     const {id, token} = route.params;
-    console.log({id, token})
+    console.log(route.params)
     useEffect(()=>{
-        verify(id, token)
+        verify({id, token})
     },[])
     return (
         <View>
